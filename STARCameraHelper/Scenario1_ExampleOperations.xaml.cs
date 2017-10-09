@@ -35,6 +35,16 @@ namespace STARCameraHelper
 
         private DispatcherTimer _FPSTimer = null;
 
+        struct ChessParameters
+        {
+            public bool isValid;
+            public int chessX;
+            public int chessY;
+            public float squareSizeMeters;
+        }
+
+        private ChessParameters _currentChessParameters;
+
         enum OperationType
         {
             Blur = 0,
@@ -49,6 +59,9 @@ namespace STARCameraHelper
         public Scenario1_ExampleOperations()
         {
             this.InitializeComponent();
+
+            UpdateChessParameters();
+
             _previewRenderer = new FrameRenderer(PreviewImage);
             _outputRenderer = new FrameRenderer(OutputImage);
 
@@ -59,6 +72,31 @@ namespace STARCameraHelper
                 Interval = TimeSpan.FromSeconds(1)
             };
             _FPSTimer.Tick += UpdateFPS;
+        }
+
+        private void UpdateChessParameters()
+        {
+            _currentChessParameters.isValid = false;
+
+            if (!Int32.TryParse(ChessXTextBlock.Text, out _currentChessParameters.chessX))
+            {
+                Debug.WriteLine("Invalid value for ChessXTextBlock: " + ChessXTextBlock.Text);
+                return;
+            }
+
+            if (!Int32.TryParse(ChessYTextBlock.Text, out _currentChessParameters.chessY))
+            {
+                Debug.WriteLine("Invalid value for ChessYTextBlock: " + ChessYTextBlock.Text);
+                return;
+            }
+
+            if (!float.TryParse(ChessSizeTextBlock.Text, out _currentChessParameters.squareSizeMeters))
+            {
+                Debug.WriteLine("Invalid value for ChessSizeTextBlock: " + ChessSizeTextBlock.Text);
+                return;
+            }
+
+            _currentChessParameters.isValid = true;
         }
 
         /// <summary>
@@ -200,7 +238,10 @@ namespace STARCameraHelper
                         _helper.MotionDetector(originalBitmap, outputBitmap);
                     } else if (currentOperation == OperationType.FindChessboardCorners)
                     {
-                        _helper.DrawChessboard(originalBitmap, outputBitmap, 5, 7);
+                        if (_currentChessParameters.isValid)
+                        {
+                            _helper.DrawChessboard(originalBitmap, outputBitmap, _currentChessParameters.chessX, _currentChessParameters.chessY);
+                        }
                     }
 
                     // Display both the original bitmap and the processed bitmap.
@@ -243,6 +284,11 @@ namespace STARCameraHelper
             {
                 this.CurrentOperationTextBlock.Text = string.Empty;
             }
+        }
+
+        private void ChessParameters_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateChessParameters();
         }
     }
 }

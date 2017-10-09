@@ -26,6 +26,15 @@
 
             <ComboBox Name="OperationComboBox" SelectionChanged="OperationComboBox_SelectionChanged"/>
 
+            <TextBlock>Chess Dim X:</TextBlock>
+            <TextBox Name="ChessXTextBlock" Text="5" TextChanged="ChessParameters_TextChanged"/>
+
+            <TextBlock>Chess Dim Y:</TextBlock>
+            <TextBox Name="ChessYTextBlock" Text="7" TextChanged="ChessParameters_TextChanged"/>
+
+            <TextBlock>Chess Square Size (meters):</TextBlock>
+            <TextBox Name="ChessSizeTextBlock" Text="0.03" TextChanged="ChessParameters_TextChanged"/>
+
             <Grid HorizontalAlignment="Stretch" Margin="0,10,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
