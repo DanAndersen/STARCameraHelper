@@ -2,6 +2,7 @@
 #include <opencv2\core\core.hpp>
 #include <opencv2\imgproc\imgproc.hpp>
 #include <opencv2\video.hpp>
+#include <opencv2\calib3d\calib3d.hpp>
 
 namespace OpenCVBridge 
 {
@@ -26,6 +27,12 @@ namespace OpenCVBridge
 		void MotionDetector(
 			Windows::Graphics::Imaging::SoftwareBitmap^ input,
 			Windows::Graphics::Imaging::SoftwareBitmap^ output);
+
+		void DrawChessboard(
+			Windows::Graphics::Imaging::SoftwareBitmap^ input,
+			Windows::Graphics::Imaging::SoftwareBitmap^ output,
+			int chessX,
+			int chessY);
 	private:
 		// used only for the background subtraction operation
 		cv::Mat fgMaskMOG2;

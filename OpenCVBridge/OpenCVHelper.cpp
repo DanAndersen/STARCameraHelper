@@ -87,6 +87,33 @@ void OpenCVHelper::Histogram(SoftwareBitmap^ input, SoftwareBitmap^ output)
 	}
 }
 
+void OpenCVHelper::DrawChessboard(SoftwareBitmap^ input, SoftwareBitmap^ output, int chessX, int chessY) {
+	Mat inputMat, outputMat;
+	if (!(TryConvert(input, inputMat) && TryConvert(output, outputMat)))
+	{
+		return;
+	}
+
+	Mat src_gray;
+	cvtColor(inputMat, src_gray, CV_BGRA2GRAY);
+
+	cv::Size patternSize(chessX, chessY);
+
+	std::vector<Point2f> pointBuf;
+
+	bool found = findChessboardCorners(src_gray, patternSize, pointBuf, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
+
+	if (found) {
+		cornerSubPix(src_gray, pointBuf, cv::Size(11, 11), cv::Size(-1, -1), TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
+		
+		inputMat.copyTo(outputMat);
+		drawChessboardCorners(outputMat, patternSize, pointBuf, found);
+	}
+	else {
+		cvtColor(src_gray, outputMat, CV_GRAY2BGRA);
+	}
+}
+
 void OpenCVHelper::Contours(SoftwareBitmap^ input, SoftwareBitmap^ output)
 {
 	Mat inputMat, outputMat;

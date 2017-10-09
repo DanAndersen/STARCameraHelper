@@ -41,7 +41,8 @@ namespace STARCameraHelper
             HoughLines,
             Contours,
             Histogram,
-            MotionDetector
+            MotionDetector,
+            FindChessboardCorners
         }
         OperationType currentOperation;
 
@@ -197,6 +198,9 @@ namespace STARCameraHelper
                     else if (currentOperation == OperationType.MotionDetector)
                     {
                         _helper.MotionDetector(originalBitmap, outputBitmap);
+                    } else if (currentOperation == OperationType.FindChessboardCorners)
+                    {
+                        _helper.DrawChessboard(originalBitmap, outputBitmap, 5, 7);
                     }
 
                     // Display both the original bitmap and the processed bitmap.
@@ -230,6 +234,10 @@ namespace STARCameraHelper
             else if (OperationType.MotionDetector == currentOperation)
             {
                 this.CurrentOperationTextBlock.Text = "Current: Motion detection";
+            }
+            else if (OperationType.FindChessboardCorners == currentOperation)
+            {
+                this.CurrentOperationTextBlock.Text = "Current: Find chessboard corners";
             }
             else
             {
