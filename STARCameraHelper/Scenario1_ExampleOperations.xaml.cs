@@ -34,7 +34,7 @@ namespace STARCameraHelper
         private OpenCVHelper _helper;
 
         private DispatcherTimer _FPSTimer = null;
-
+        
         struct ChessParameters
         {
             public bool isValid;
@@ -45,14 +45,35 @@ namespace STARCameraHelper
 
         private ChessParameters _currentChessParameters;
 
+        private bool _savingDetectedCorners;
+        private bool SavingDetectedCorners
+        {
+            get
+            {
+                return _savingDetectedCorners;
+            }
+            set
+            {
+                _savingDetectedCorners = value;
+                OnChangeCollectingState();
+            }
+        }
+
+        private void OnChangeCollectingState()
+        {
+            if (SavingDetectedCorners) {
+                ResumeCollectingCornersButton.IsEnabled = false;
+                PauseCollectingCornersButton.IsEnabled = true;
+            } else
+            {
+                ResumeCollectingCornersButton.IsEnabled = true;
+                PauseCollectingCornersButton.IsEnabled = false;
+            }
+        }
+
         enum OperationType
         {
-            Blur = 0,
-            HoughLines,
-            Contours,
-            Histogram,
-            MotionDetector,
-            FindChessboardCorners
+            FindChessboardCorners = 0
         }
         OperationType currentOperation;
 
@@ -61,6 +82,8 @@ namespace STARCameraHelper
             this.InitializeComponent();
 
             UpdateChessParameters();
+
+            SavingDetectedCorners = true;
 
             _previewRenderer = new FrameRenderer(PreviewImage);
             _outputRenderer = new FrameRenderer(OutputImage);
@@ -140,6 +163,8 @@ namespace STARCameraHelper
         {
             var frameCount = Interlocked.Exchange(ref _frameCount, 0);
             this.FPSMonitor.Text = "FPS: " + frameCount;
+
+            this.CornerStatusTextBlock.Text = "Num corners collected: " + _helper.GetNumDetectedCorners();
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -149,7 +174,7 @@ namespace STARCameraHelper
             // setting up the combobox, and default operation
             OperationComboBox.ItemsSource = Enum.GetValues(typeof(OperationType));
             OperationComboBox.SelectedIndex = 0;
-            currentOperation = OperationType.Blur;
+            currentOperation = OperationType.FindChessboardCorners;
 
             // Find the sources 
             var allGroups = await MediaFrameSourceGroup.FindAllAsync();
@@ -217,30 +242,11 @@ namespace STARCameraHelper
                     SoftwareBitmap outputBitmap = new SoftwareBitmap(BitmapPixelFormat.Bgra8, originalBitmap.PixelWidth, originalBitmap.PixelHeight, BitmapAlphaMode.Premultiplied);
 
                     // Operate on the image in the manner chosen by the user.
-                    if (currentOperation == OperationType.Blur)
-                    {
-                        _helper.Blur(originalBitmap, outputBitmap);
-                    }
-                    else if (currentOperation == OperationType.HoughLines)
-                    {
-                        _helper.HoughLines(originalBitmap, outputBitmap);
-                    }
-                    else if (currentOperation == OperationType.Contours)
-                    {
-                        _helper.Contours(originalBitmap, outputBitmap);
-                    }
-                    else if (currentOperation == OperationType.Histogram)
-                    {
-                        _helper.Histogram(originalBitmap, outputBitmap);
-                    }
-                    else if (currentOperation == OperationType.MotionDetector)
-                    {
-                        _helper.MotionDetector(originalBitmap, outputBitmap);
-                    } else if (currentOperation == OperationType.FindChessboardCorners)
+                    if (currentOperation == OperationType.FindChessboardCorners)
                     {
                         if (_currentChessParameters.isValid)
                         {
-                            _helper.DrawChessboard(originalBitmap, outputBitmap, _currentChessParameters.chessX, _currentChessParameters.chessY);
+                            _helper.DrawChessboard(originalBitmap, outputBitmap, _currentChessParameters.chessX, _currentChessParameters.chessY, _currentChessParameters.squareSizeMeters, SavingDetectedCorners);
                         }
                     }
 
@@ -256,27 +262,7 @@ namespace STARCameraHelper
         private void OperationComboBox_SelectionChanged(object sender, RoutedEventArgs e)
         {
             currentOperation = (OperationType)((sender as ComboBox).SelectedItem);
-            if (OperationType.Blur == currentOperation)
-            {
-                this.CurrentOperationTextBlock.Text = "Current: Blur";
-            }
-            else if (OperationType.Contours == currentOperation)
-            {
-                this.CurrentOperationTextBlock.Text = "Current: Contours";
-            }
-            else if (OperationType.Histogram == currentOperation)
-            {
-                this.CurrentOperationTextBlock.Text = "Current: Histogram of RGB channels";
-            }
-            else if (OperationType.HoughLines == currentOperation)
-            {
-                this.CurrentOperationTextBlock.Text = "Current: Line detection";
-            }
-            else if (OperationType.MotionDetector == currentOperation)
-            {
-                this.CurrentOperationTextBlock.Text = "Current: Motion detection";
-            }
-            else if (OperationType.FindChessboardCorners == currentOperation)
+            if (OperationType.FindChessboardCorners == currentOperation)
             {
                 this.CurrentOperationTextBlock.Text = "Current: Find chessboard corners";
             }
@@ -289,6 +275,21 @@ namespace STARCameraHelper
         private void ChessParameters_TextChanged(object sender, TextChangedEventArgs e)
         {
             UpdateChessParameters();
+        }
+
+        private void ClearCollectedCornersButton_Click(object sender, RoutedEventArgs e)
+        {
+            _helper.ClearDetectedCorners();
+        }
+
+        private void PauseCollectingCornersButton_Click(object sender, RoutedEventArgs e)
+        {
+            SavingDetectedCorners = false;
+        }
+
+        private void ResumeCollectingCornersButton_Click(object sender, RoutedEventArgs e)
+        {
+            SavingDetectedCorners = true;
         }
     }
 }

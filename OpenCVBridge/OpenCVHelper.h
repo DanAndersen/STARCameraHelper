@@ -32,8 +32,19 @@ namespace OpenCVBridge
 			Windows::Graphics::Imaging::SoftwareBitmap^ input,
 			Windows::Graphics::Imaging::SoftwareBitmap^ output,
 			int chessX,
-			int chessY);
+			int chessY,
+			float chessSquareSizeMeters,
+			bool saveDetectedCorners);
+
+		void ClearDetectedCorners();
+
+		int GetNumDetectedCorners();
 	private:
+		std::vector<std::vector<cv::Point2f>> detectedCorners;
+		int chessX;
+		int chessY;
+		float chessSquareSizeMeters;
+
 		// used only for the background subtraction operation
 		cv::Mat fgMaskMOG2;
 		cv::Ptr<cv::BackgroundSubtractor> pMOG2;
@@ -43,5 +54,7 @@ namespace OpenCVBridge
 			unsigned char** pPixelData, unsigned int* capacity);
 
 		bool TryConvert(Windows::Graphics::Imaging::SoftwareBitmap^ from, cv::Mat& convertedMat);
+
+		void UpdateChessParameters(int newChessX, int newChessY, float newChessSquareSizeMeters);
 	};
 }

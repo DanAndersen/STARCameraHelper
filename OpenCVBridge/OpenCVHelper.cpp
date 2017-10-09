@@ -87,12 +87,43 @@ void OpenCVHelper::Histogram(SoftwareBitmap^ input, SoftwareBitmap^ output)
 	}
 }
 
-void OpenCVHelper::DrawChessboard(SoftwareBitmap^ input, SoftwareBitmap^ output, int chessX, int chessY) {
+void OpenCVHelper::ClearDetectedCorners()
+{
+	detectedCorners.clear();
+}
+
+void OpenCVHelper::UpdateChessParameters(int newChessX, int newChessY, float newChessSquareSizeMeters)
+{
+	bool needToClear = false;
+
+	if (newChessX != chessX) {
+		chessX = newChessX;
+		needToClear = true;
+	}
+
+	if (newChessY != chessY) {
+		chessY = newChessY;
+		needToClear = true;
+	}
+
+	if (abs(newChessSquareSizeMeters - chessSquareSizeMeters) < 0.00001f) {
+		chessSquareSizeMeters = newChessSquareSizeMeters;
+		needToClear = true;
+	}
+
+	if (needToClear) {
+		ClearDetectedCorners();
+	}
+}
+
+void OpenCVHelper::DrawChessboard(SoftwareBitmap^ input, SoftwareBitmap^ output, int chessX, int chessY, float chessSquareSizeMeters, bool saveDetectedCorners) {
 	Mat inputMat, outputMat;
 	if (!(TryConvert(input, inputMat) && TryConvert(output, outputMat)))
 	{
 		return;
 	}
+
+	UpdateChessParameters(chessX, chessY, chessSquareSizeMeters);
 
 	Mat src_gray;
 	cvtColor(inputMat, src_gray, CV_BGRA2GRAY);
@@ -106,6 +137,10 @@ void OpenCVHelper::DrawChessboard(SoftwareBitmap^ input, SoftwareBitmap^ output,
 	if (found) {
 		cornerSubPix(src_gray, pointBuf, cv::Size(11, 11), cv::Size(-1, -1), TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
 		
+		if (saveDetectedCorners) {
+			detectedCorners.push_back(pointBuf);
+		}
+
 		inputMat.copyTo(outputMat);
 		drawChessboardCorners(outputMat, patternSize, pointBuf, found);
 	}
@@ -138,6 +173,11 @@ void OpenCVHelper::Contours(SoftwareBitmap^ input, SoftwareBitmap^ output)
 	{
 		drawContours(outputMat, contours, i, Scalar(255, 0, 0, 255), 2, 8, hierarchy, 0);
 	}
+}
+
+int OpenCVHelper::GetNumDetectedCorners()
+{
+	return detectedCorners.size();
 }
 
 void OpenCVHelper::HoughLines(SoftwareBitmap^ input, SoftwareBitmap^ output)
