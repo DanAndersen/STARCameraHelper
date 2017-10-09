@@ -7,14 +7,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="OpenCVBridge.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="OpenCVHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="OpenCVBridge.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="targetver.h" />
+    <ClInclude Include="OpenCVHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
