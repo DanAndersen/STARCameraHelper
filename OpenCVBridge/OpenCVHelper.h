@@ -30,6 +30,19 @@ namespace OpenCVBridge
 		double rms;
 	};
 
+	public value struct PnPResult 
+	{
+		bool success;
+
+		double rvec_0;
+		double rvec_1;
+		double rvec_2;
+
+		double tvec_0;
+		double tvec_1;
+		double tvec_2;
+	};
+
 	public ref class OpenCVHelper sealed
 	{
 	public:
@@ -50,6 +63,12 @@ namespace OpenCVBridge
 		int GetNumDetectedCorners();
 
 		IntrinsicCalibration CalibrateIntrinsics(int maxNumInputFrames);
+
+		PnPResult FindExtrinsics(Windows::Graphics::Imaging::SoftwareBitmap^ input,
+			Windows::Graphics::Imaging::SoftwareBitmap^ output,
+			int chessX,
+			int chessY,
+			float chessSquareSizeMeters, IntrinsicCalibration intrinsics);
 	private:
 		std::vector<std::vector<cv::Point2f>> detectedCorners;
 		int chessX;
@@ -57,6 +76,8 @@ namespace OpenCVBridge
 		float chessSquareSizeMeters;
 
 		cv::Size inputImageSize;
+
+		std::vector<cv::Point3f> obj;	// object points (valid for the latest chess dimensions)
 
 		// helper functions for getting a cv::Mat from SoftwareBitmap
 		bool GetPointerToPixelData(Windows::Graphics::Imaging::SoftwareBitmap^ bitmap,

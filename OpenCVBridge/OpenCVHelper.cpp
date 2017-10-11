@@ -43,6 +43,77 @@ void OpenCVHelper::UpdateChessParameters(int newChessX, int newChessY, float new
 
 	if (needToClear) {
 		ClearDetectedCorners();
+
+		obj.clear();
+		for (int i = 0; i < chessY; i++) {
+			for (int j = 0; j < chessX; j++) {
+				obj.push_back(Point3f((float)j * chessSquareSizeMeters, (float)i * chessSquareSizeMeters, 0));
+			}
+		}
+	}
+}
+
+PnPResult OpenCVHelper::FindExtrinsics(SoftwareBitmap^ input, SoftwareBitmap^ output, int chessX, int chessY, float chessSquareSizeMeters, IntrinsicCalibration intrinsics)
+{
+	PnPResult result;
+	result.success = false;
+
+
+	Mat inputMat, outputMat;
+	if (!(TryConvert(input, inputMat) && TryConvert(output, outputMat)))
+	{
+		return result;
+	}
+
+	UpdateChessParameters(chessX, chessY, chessSquareSizeMeters);
+
+	Mat src_gray;
+	cvtColor(inputMat, src_gray, CV_BGRA2GRAY);
+
+	cv::Size patternSize(chessX, chessY);
+
+	std::vector<Point2f> pointBuf;
+
+	bool found = findChessboardCorners(src_gray, patternSize, pointBuf, CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
+
+	if (found) {
+		cornerSubPix(src_gray, pointBuf, cv::Size(11, 11), cv::Size(-1, -1), TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 30, 0.1));
+
+		Mat cameraMatrix(cv::Size(3, 3), CV_64F, 0.0);
+		cameraMatrix.at<double>(0, 0) = intrinsics.fx;
+		cameraMatrix.at<double>(1, 1) = intrinsics.fy;
+		cameraMatrix.at<double>(0, 2) = intrinsics.cx;
+		cameraMatrix.at<double>(1, 2) = intrinsics.cy;
+		cameraMatrix.at<double>(1, 2) = intrinsics.cy;
+		cameraMatrix.at<double>(2, 2) = 1.0;
+
+		Mat distCoeffs(cv::Size(1,5), CV_64F, 0.0);
+		distCoeffs.at<double>(0) = intrinsics.k1;
+		distCoeffs.at<double>(1) = intrinsics.k2;
+		distCoeffs.at<double>(2) = intrinsics.p1;
+		distCoeffs.at<double>(3) = intrinsics.p2;
+		distCoeffs.at<double>(4) = intrinsics.k3;
+
+
+		Mat rvec, tvec;
+		bool success = solvePnP(obj, pointBuf, cameraMatrix, distCoeffs, rvec, tvec);
+
+		// draw chessboard corners
+		inputMat.copyTo(outputMat);
+		drawChessboardCorners(outputMat, patternSize, pointBuf, found);
+
+		result.success = success;
+		result.rvec_0 = rvec.at<double>(0);
+		result.rvec_1 = rvec.at<double>(1);
+		result.rvec_2 = rvec.at<double>(2);
+		result.tvec_0 = tvec.at<double>(0);
+		result.tvec_1 = tvec.at<double>(1);
+		result.tvec_2 = tvec.at<double>(2);
+		return result;
+	}
+	else {
+		cvtColor(src_gray, outputMat, CV_GRAY2BGRA);
+		return result;
 	}
 }
 
@@ -96,12 +167,7 @@ IntrinsicCalibration OpenCVHelper::CalibrateIntrinsics(int maxNumInputFrames)
 	std::iota(indices.begin(), indices.end(), 0);
 	std::random_shuffle(indices.begin(), indices.end());
 
-	std::vector<Point3f> obj;
-	for (int i = 0; i < chessY; i++) {
-		for (int j = 0; j < chessX; j++) {
-			obj.push_back(Point3f((float)j * chessSquareSizeMeters, (float)i * chessSquareSizeMeters, 0));
-		}
-	}
+	
 
 	std::vector<std::vector<Point2f>> imagePoints;
 	std::vector<std::vector<Point3f>> objectPoints;

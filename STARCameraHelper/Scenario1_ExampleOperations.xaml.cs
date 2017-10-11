@@ -82,7 +82,8 @@ namespace STARCameraHelper
 
         enum OperationType
         {
-            FindChessboardCorners = 0
+            CollectCornersForCalibration = 0,
+            FindCurrentExtrinsics
         }
         OperationType currentOperation;
 
@@ -203,7 +204,7 @@ namespace STARCameraHelper
             // setting up the combobox, and default operation
             OperationComboBox.ItemsSource = Enum.GetValues(typeof(OperationType));
             OperationComboBox.SelectedIndex = 0;
-            currentOperation = OperationType.FindChessboardCorners;
+            currentOperation = OperationType.CollectCornersForCalibration;
 
             // Find the sources 
             var allGroups = await MediaFrameSourceGroup.FindAllAsync();
@@ -273,11 +274,23 @@ namespace STARCameraHelper
                     SoftwareBitmap outputBitmap = new SoftwareBitmap(BitmapPixelFormat.Bgra8, originalBitmap.PixelWidth, originalBitmap.PixelHeight, BitmapAlphaMode.Premultiplied);
 
                     // Operate on the image in the manner chosen by the user.
-                    if (currentOperation == OperationType.FindChessboardCorners)
+                    if (currentOperation == OperationType.CollectCornersForCalibration)
                     {
                         if (_currentChessParameters.isValid)
                         {
                             _helper.DrawChessboard(originalBitmap, outputBitmap, _currentChessParameters.chessX, _currentChessParameters.chessY, _currentChessParameters.squareSizeMeters, SavingDetectedCorners);
+                        }
+                    } else if (currentOperation == OperationType.FindCurrentExtrinsics)
+                    {
+                        if (_currentChessParameters.isValid && _validIntrinsicCalibrationLoaded)
+                        {
+                            PnPResult pnpresult = _helper.FindExtrinsics(originalBitmap, outputBitmap, _currentChessParameters.chessX, _currentChessParameters.chessY, _currentChessParameters.squareSizeMeters, _currentIntrinsicCalibration);
+                            if (pnpresult.success)
+                            {
+                                Debug.WriteLine("got extrinsics:");
+                                Debug.WriteLine("rvec: " + pnpresult.rvec_0 + " " + pnpresult.rvec_1 + " " + pnpresult.rvec_2);
+                                Debug.WriteLine("tvec: " + pnpresult.tvec_0 + " " + pnpresult.tvec_1 + " " + pnpresult.tvec_2);
+                            }
                         }
                     }
 
@@ -293,9 +306,12 @@ namespace STARCameraHelper
         private void OperationComboBox_SelectionChanged(object sender, RoutedEventArgs e)
         {
             currentOperation = (OperationType)((sender as ComboBox).SelectedItem);
-            if (OperationType.FindChessboardCorners == currentOperation)
+            if (OperationType.CollectCornersForCalibration == currentOperation)
             {
-                this.CurrentOperationTextBlock.Text = "Current: Find chessboard corners";
+                this.CurrentOperationTextBlock.Text = "Current: Collecting chessboard corners for intrinsic calibration";
+            } else if (OperationType.FindCurrentExtrinsics == currentOperation)
+            {
+                this.CurrentOperationTextBlock.Text = "Current: Finding current extrinsics given loaded intrinsics";
             }
             else
             {
