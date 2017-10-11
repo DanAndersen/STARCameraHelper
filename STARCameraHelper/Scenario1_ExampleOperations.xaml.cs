@@ -35,7 +35,9 @@ namespace STARCameraHelper
 
         private DispatcherTimer _FPSTimer = null;
         private DispatcherTimer _guiTimer = null;
-        
+
+        private bool _isCalibratingIntrinsics = false;
+
         struct ChessParameters
         {
             public bool isValid;
@@ -110,7 +112,7 @@ namespace STARCameraHelper
             int numDetectedCorners = _helper.GetNumDetectedCorners();
             this.CornerStatusTextBlock.Text = "Num corners collected: " + numDetectedCorners;
 
-            this.CalibrateIntrinsicsButton.IsEnabled = (numDetectedCorners >= 10);
+            this.CalibrateIntrinsicsButton.IsEnabled = (!_isCalibratingIntrinsics && numDetectedCorners >= 10);
         }
 
         private void UpdateChessParameters()
@@ -314,11 +316,17 @@ namespace STARCameraHelper
             SavingDetectedCorners = true;
         }
 
-        private void CalibrateIntrinsicsButton_Click(object sender, RoutedEventArgs e)
+        private async void CalibrateIntrinsicsButton_Click(object sender, RoutedEventArgs e)
         {
             if (_currentChessParameters.isValid)
             {
-                OpenCVBridge.IntrinsicCalibration calibration = _helper.CalibrateIntrinsics(_currentChessParameters.maxInputFrames);
+                var originalButtonLabel = CalibrateIntrinsicsButton.Content;
+
+                CalibrateIntrinsicsButton.Content = "Please wait, calibrating...";
+                
+                _isCalibratingIntrinsics = true;
+                OpenCVBridge.IntrinsicCalibration calibration = await Task.Run(() => _helper.CalibrateIntrinsics(_currentChessParameters.maxInputFrames));
+                _isCalibratingIntrinsics = false;
 
                 Debug.WriteLine("calibration:");
                 Debug.WriteLine("width: " + calibration.width);
@@ -336,6 +344,8 @@ namespace STARCameraHelper
                 Debug.WriteLine("k3: " + calibration.k3);
 
                 Debug.WriteLine("rms: " + calibration.rms);
+                
+                CalibrateIntrinsicsButton.Content = originalButtonLabel;
             }
         }
     }
