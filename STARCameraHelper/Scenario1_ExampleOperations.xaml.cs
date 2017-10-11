@@ -1,5 +1,6 @@
 ﻿using OpenCVBridge;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -11,6 +12,7 @@ using Windows.Media.MediaProperties;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using System.Json;
 
 namespace STARCameraHelper
 {
@@ -46,6 +48,9 @@ namespace STARCameraHelper
             public float squareSizeMeters;
             public int maxInputFrames;
         }
+
+        private bool _validIntrinsicCalibrationLoaded = false;
+        private IntrinsicCalibration _currentIntrinsicCalibration;
 
         private ChessParameters _currentChessParameters;
 
@@ -113,6 +118,8 @@ namespace STARCameraHelper
             this.CornerStatusTextBlock.Text = "Num corners collected: " + numDetectedCorners;
 
             this.CalibrateIntrinsicsButton.IsEnabled = (!_isCalibratingIntrinsics && numDetectedCorners >= 10);
+
+            this.SaveIntrinsicsToFileButton.IsEnabled = _validIntrinsicCalibrationLoaded;
         }
 
         private void UpdateChessParameters()
@@ -344,8 +351,68 @@ namespace STARCameraHelper
                 Debug.WriteLine("k3: " + calibration.k3);
 
                 Debug.WriteLine("rms: " + calibration.rms);
-                
+
+                _currentIntrinsicCalibration = calibration;
+                _validIntrinsicCalibrationLoaded = true;
+
                 CalibrateIntrinsicsButton.Content = originalButtonLabel;
+            }
+        }
+
+        private JsonObject IntrinsicsToJson(IntrinsicCalibration calib)
+        {
+            JsonObject obj = new JsonObject();
+            obj["width"] = calib.width;
+            obj["height"] = calib.height;
+
+            obj["fx"] = calib.fx;
+            obj["fy"] = calib.fy;
+            obj["cx"] = calib.cx;
+            obj["cy"] = calib.cy;
+
+            obj["k1"] = calib.k1;
+            obj["k2"] = calib.k2;
+            obj["p1"] = calib.p1;
+            obj["p2"] = calib.p2;
+            obj["k3"] = calib.k3;
+
+            obj["rms"] = calib.rms;
+
+            return obj;
+        }
+
+        private async void SaveIntrinsicsToFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            var savePicker = new Windows.Storage.Pickers.FileSavePicker();
+            savePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+
+            savePicker.FileTypeChoices.Add("JSON Text", new List<string>() { ".json" });
+
+            savePicker.SuggestedFileName = "SavedIntrinsicCalibration";
+
+            Windows.Storage.StorageFile file = await savePicker.PickSaveFileAsync();
+            if (file != null)
+            {
+                // Prevent updates to remote version of the file until we finish making changes and call CompleteUpdatesAsync.
+                Windows.Storage.CachedFileManager.DeferUpdates(file);
+                // write to file
+
+
+                JsonObject calibJson = IntrinsicsToJson(_currentIntrinsicCalibration);
+                
+                await Windows.Storage.FileIO.WriteTextAsync(file, calibJson.ToString());
+                // Let Windows know we're finished changing the file, so another app can update the remote version of the file.
+                Windows.Storage.Provider.FileUpdateStatus status = await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(file);
+                if (status == Windows.Storage.Provider.FileUpdateStatus.Complete)
+                {
+                    Debug.WriteLine("File " + file.Path + " was saved.");
+                } else
+                {
+                    Debug.WriteLine("File " + file.Path + " couldn't be saved.");
+                }
+            } else
+            {
+                Debug.WriteLine("Saving intrinsics canceled.");
             }
         }
     }

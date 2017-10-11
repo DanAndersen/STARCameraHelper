@@ -55,6 +55,8 @@
 
             <Button Name="CalibrateIntrinsicsButton" Click="CalibrateIntrinsicsButton_Click">Calibrate Intrinsics</Button>
 
+            <Button Name="SaveIntrinsicsToFileButton" Click="SaveIntrinsicsToFileButton_Click">Save Intrinsics to File</Button>
+
             <Grid HorizontalAlignment="Stretch" Margin="0,10,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
