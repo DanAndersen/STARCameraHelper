@@ -6,6 +6,30 @@
 
 namespace OpenCVBridge 
 {
+
+	public value struct IntrinsicCalibration
+	{
+		// image size
+		int width;
+		int height;
+
+		// variables for camera matrix
+		double fx;
+		double fy;
+		double cx;
+		double cy;
+
+		// distortion coefficients
+		double k1;
+		double k2;
+		double p1;
+		double p2;
+		double k3;
+
+		// error from calibration
+		double rms;
+	};
+
 	public ref class OpenCVHelper sealed
 	{
 	public:
@@ -25,7 +49,7 @@ namespace OpenCVBridge
 
 		int GetNumDetectedCorners();
 
-		double CalibrateIntrinsics(int maxNumInputFrames);
+		IntrinsicCalibration CalibrateIntrinsics(int maxNumInputFrames);
 	private:
 		std::vector<std::vector<cv::Point2f>> detectedCorners;
 		int chessX;

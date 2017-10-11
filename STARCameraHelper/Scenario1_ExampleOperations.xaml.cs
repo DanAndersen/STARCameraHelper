@@ -318,8 +318,24 @@ namespace STARCameraHelper
         {
             if (_currentChessParameters.isValid)
             {
-                double rms = _helper.CalibrateIntrinsics(_currentChessParameters.maxInputFrames);
-                Debug.WriteLine("got rms: " + rms);
+                OpenCVBridge.IntrinsicCalibration calibration = _helper.CalibrateIntrinsics(_currentChessParameters.maxInputFrames);
+
+                Debug.WriteLine("calibration:");
+                Debug.WriteLine("width: " + calibration.width);
+                Debug.WriteLine("height: " + calibration.height);
+
+                Debug.WriteLine("fx: " + calibration.fx);
+                Debug.WriteLine("fy: " + calibration.fy);
+                Debug.WriteLine("cx: " + calibration.cx);
+                Debug.WriteLine("cy: " + calibration.cy);
+
+                Debug.WriteLine("k1: " + calibration.k1);
+                Debug.WriteLine("k2: " + calibration.k2);
+                Debug.WriteLine("p1: " + calibration.p1);
+                Debug.WriteLine("p2: " + calibration.p2);
+                Debug.WriteLine("k3: " + calibration.k3);
+
+                Debug.WriteLine("rms: " + calibration.rms);
             }
         }
     }

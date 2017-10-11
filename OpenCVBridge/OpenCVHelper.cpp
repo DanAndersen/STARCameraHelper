@@ -82,7 +82,7 @@ void OpenCVHelper::DrawChessboard(SoftwareBitmap^ input, SoftwareBitmap^ output,
 	}
 }
 
-double OpenCVHelper::CalibrateIntrinsics(int maxNumInputFrames)
+IntrinsicCalibration OpenCVHelper::CalibrateIntrinsics(int maxNumInputFrames)
 {
 	char s[4096];
 
@@ -120,7 +120,27 @@ double OpenCVHelper::CalibrateIntrinsics(int maxNumInputFrames)
 	int flags = 0 | CV_CALIB_FIX_K4 | CV_CALIB_FIX_K5;
 
 	double rms = calibrateCamera(objectPoints, imagePoints, inputImageSize, cameraMatrix, distCoeffs, rvecs, tvecs, flags);
-	return rms;
+	
+
+	IntrinsicCalibration outputCalib;
+
+	outputCalib.width = inputImageSize.width;
+	outputCalib.height = inputImageSize.height;
+
+	outputCalib.fx = cameraMatrix.at<double>(0, 0);
+	outputCalib.fy = cameraMatrix.at<double>(1, 1);
+	outputCalib.cx = cameraMatrix.at<double>(0, 2);
+	outputCalib.cy = cameraMatrix.at<double>(1, 2);
+	
+	outputCalib.k1 = distCoeffs.at<double>(0);
+	outputCalib.k2 = distCoeffs.at<double>(1);
+	outputCalib.p1 = distCoeffs.at<double>(2);
+	outputCalib.p2 = distCoeffs.at<double>(3);
+	outputCalib.k3 = distCoeffs.at<double>(4);
+	
+	outputCalib.rms = rms;
+
+	return outputCalib;
 }
 
 int OpenCVHelper::GetNumDetectedCorners()
