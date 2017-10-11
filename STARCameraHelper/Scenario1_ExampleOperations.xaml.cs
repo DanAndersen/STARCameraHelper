@@ -415,5 +415,45 @@ namespace STARCameraHelper
                 Debug.WriteLine("Saving intrinsics canceled.");
             }
         }
+
+        private async void LoadIntrinsicsFromFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            var openPicker = new Windows.Storage.Pickers.FileOpenPicker();
+            openPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+
+            openPicker.FileTypeFilter.Add(".json");
+
+            Windows.Storage.StorageFile file = await openPicker.PickSingleFileAsync();
+            if (file != null)
+            {
+                string inputString = await Windows.Storage.FileIO.ReadTextAsync(file);
+
+                var obj = JsonValue.Parse(inputString);
+
+                IntrinsicCalibration calib;
+
+                calib.width = obj["width"];
+                calib.height = obj["height"];
+
+                calib.fx = obj["fx"];
+                calib.fy = obj["fy"];
+                calib.cx = obj["cx"];
+                calib.cy = obj["cy"];
+
+                calib.k1 = obj["k1"];
+                calib.k2 = obj["k2"];
+                calib.p1 = obj["p1"];
+                calib.p2 = obj["p2"];
+                calib.k3 = obj["k3"];
+
+                calib.rms = obj["rms"];
+
+                _currentIntrinsicCalibration = calib;
+                _validIntrinsicCalibrationLoaded = true;
+            } else
+            {
+                Debug.WriteLine("Loading intrinsics canceled.");
+            }
+        }
     }
 }
