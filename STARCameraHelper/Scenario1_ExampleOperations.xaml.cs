@@ -34,6 +34,7 @@ namespace STARCameraHelper
         private OpenCVHelper _helper;
 
         private DispatcherTimer _FPSTimer = null;
+        private DispatcherTimer _guiTimer = null;
         
         struct ChessParameters
         {
@@ -41,6 +42,7 @@ namespace STARCameraHelper
             public int chessX;
             public int chessY;
             public float squareSizeMeters;
+            public int maxInputFrames;
         }
 
         private ChessParameters _currentChessParameters;
@@ -95,6 +97,20 @@ namespace STARCameraHelper
                 Interval = TimeSpan.FromSeconds(1)
             };
             _FPSTimer.Tick += UpdateFPS;
+
+            _guiTimer = new DispatcherTimer()
+            {
+                Interval = TimeSpan.FromSeconds(0.1)
+            };
+            _guiTimer.Tick += UpdateGui;
+        }
+
+        private void UpdateGui(object sender, object e)
+        {
+            int numDetectedCorners = _helper.GetNumDetectedCorners();
+            this.CornerStatusTextBlock.Text = "Num corners collected: " + numDetectedCorners;
+
+            this.CalibrateIntrinsicsButton.IsEnabled = (numDetectedCorners >= 10);
         }
 
         private void UpdateChessParameters()
@@ -119,6 +135,12 @@ namespace STARCameraHelper
                 return;
             }
 
+            if (!Int32.TryParse(MaxInputFramesTextBlock.Text, out _currentChessParameters.maxInputFrames))
+            {
+                Debug.WriteLine("Invalid value for MaxInputFramesTextBlock: " + MaxInputFramesTextBlock.Text);
+                return;
+            }
+            
             _currentChessParameters.isValid = true;
         }
 
@@ -163,8 +185,6 @@ namespace STARCameraHelper
         {
             var frameCount = Interlocked.Exchange(ref _frameCount, 0);
             this.FPSMonitor.Text = "FPS: " + frameCount;
-
-            this.CornerStatusTextBlock.Text = "Num corners collected: " + _helper.GetNumDetectedCorners();
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -215,11 +235,13 @@ namespace STARCameraHelper
             await _reader.StartAsync();
 
             _FPSTimer.Start();
+            _guiTimer.Start();
         }
 
         protected override async void OnNavigatedFrom(NavigationEventArgs args)
         {
             _FPSTimer.Stop();
+            _guiTimer.Stop();
             await CleanupMediaCaptureAsync();
         }
 
@@ -290,6 +312,15 @@ namespace STARCameraHelper
         private void ResumeCollectingCornersButton_Click(object sender, RoutedEventArgs e)
         {
             SavingDetectedCorners = true;
+        }
+
+        private void CalibrateIntrinsicsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentChessParameters.isValid)
+            {
+                double rms = _helper.CalibrateIntrinsics(_currentChessParameters.maxInputFrames);
+                Debug.WriteLine("got rms: " + rms);
+            }
         }
     }
 }

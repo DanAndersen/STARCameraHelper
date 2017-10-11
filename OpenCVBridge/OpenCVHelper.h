@@ -12,21 +12,6 @@ namespace OpenCVBridge
 		OpenCVHelper();
 
 		// Image processing operators
-		void Blur(
-			Windows::Graphics::Imaging::SoftwareBitmap^ input,
-			Windows::Graphics::Imaging::SoftwareBitmap^ output);
-		void HoughLines(
-			Windows::Graphics::Imaging::SoftwareBitmap^ input,
-			Windows::Graphics::Imaging::SoftwareBitmap^ output);
-		void Contours(
-			Windows::Graphics::Imaging::SoftwareBitmap^ input,
-			Windows::Graphics::Imaging::SoftwareBitmap^ output);
-		void Histogram(
-			Windows::Graphics::Imaging::SoftwareBitmap^ input,
-			Windows::Graphics::Imaging::SoftwareBitmap^ output);
-		void MotionDetector(
-			Windows::Graphics::Imaging::SoftwareBitmap^ input,
-			Windows::Graphics::Imaging::SoftwareBitmap^ output);
 
 		void DrawChessboard(
 			Windows::Graphics::Imaging::SoftwareBitmap^ input,
@@ -39,15 +24,15 @@ namespace OpenCVBridge
 		void ClearDetectedCorners();
 
 		int GetNumDetectedCorners();
+
+		double CalibrateIntrinsics(int maxNumInputFrames);
 	private:
 		std::vector<std::vector<cv::Point2f>> detectedCorners;
 		int chessX;
 		int chessY;
 		float chessSquareSizeMeters;
 
-		// used only for the background subtraction operation
-		cv::Mat fgMaskMOG2;
-		cv::Ptr<cv::BackgroundSubtractor> pMOG2;
+		cv::Size inputImageSize;
 
 		// helper functions for getting a cv::Mat from SoftwareBitmap
 		bool GetPointerToPixelData(Windows::Graphics::Imaging::SoftwareBitmap^ bitmap,

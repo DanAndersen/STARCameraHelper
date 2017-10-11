@@ -50,6 +50,11 @@
 
             <TextBlock Name="CornerStatusTextBlock"></TextBlock>
 
+            <TextBlock>Max input frames to use for calibration:</TextBlock>
+            <TextBox Name="MaxInputFramesTextBlock" Text="30" TextChanged="ChessParameters_TextChanged"/>
+
+            <Button Name="CalibrateIntrinsicsButton" Click="CalibrateIntrinsicsButton_Click">Calibrate Intrinsics</Button>
+
             <Grid HorizontalAlignment="Stretch" Margin="0,10,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
