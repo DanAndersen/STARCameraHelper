@@ -23,7 +23,13 @@
             <TextBlock Style="{StaticResource ScenarioDescriptionTextStyle}" TextWrapping="Wrap">
                     Streams video from attached webcam to mentor via WebRTC
             </TextBlock>
-            
+
+            <Button x:Name="initWebrtcButton" Content="Init and Start WebRTC" Click="initWebrtcButton_Click"/>
+
+            <MediaPlayerElement Name="mediaPlayerElement" AreTransportControlsEnabled="False" />
+
+            <TextBox x:Name="webrtcLogTextBox" TextWrapping="Wrap" Text="TextBox" />
+
         </StackPanel>
     </ScrollViewer>
 </Page>
