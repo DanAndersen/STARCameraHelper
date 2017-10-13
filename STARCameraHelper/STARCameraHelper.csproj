@@ -105,6 +105,9 @@
     <Compile Include="Scenario1_ExampleOperations.xaml.cs">
       <DependentUpon>Scenario1_ExampleOperations.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Scenario2_WebRTC.xaml.cs">
+      <DependentUpon>Scenario2_WebRTC.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -132,6 +135,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Scenario1_ExampleOperations.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Scenario2_WebRTC.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
