@@ -13,6 +13,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using System.Json;
+using System.Net.Sockets;
 
 namespace STARCameraHelper
 {
@@ -509,6 +510,48 @@ namespace STARCameraHelper
             JsonObject objToSend = IntrinsicsAndExtrinsicsToJson(_currentIntrinsicCalibration, _currentPnPResult);
 
             Debug.WriteLine("TODO: send the object: " + objToSend.ToString());
+
+            int holoPort;
+
+            string holoAddress = HoloLensAddressTextBlock.Text;
+
+            if (int.TryParse(HoloLensPortTextBlock.Text, out holoPort))
+            {
+                SendStringToTcpServer(holoAddress, holoPort, objToSend.ToString());
+            }
+        }
+
+        private async void SendStringToTcpServer(string address, int port, string msg)
+        {
+            TcpClient client = null;
+            NetworkStream stream = null;
+
+            try
+            {
+                client = new TcpClient();
+
+                Debug.WriteLine(String.Format("Connecting to {0}:{1}...", address, port));
+                await client.ConnectAsync(address, port);
+
+                Byte[] data = System.Text.Encoding.UTF8.GetBytes(msg);
+
+                stream = client.GetStream();
+
+                stream.Write(data, 0, data.Length);
+
+                Debug.WriteLine(String.Format("Sent: {0}", msg));
+            }
+            finally
+            {
+                if (stream != null)
+                {
+                    stream.Dispose();
+                }
+                if (client != null)
+                {
+                    client.Dispose();
+                }
+            }
         }
     }
 }
