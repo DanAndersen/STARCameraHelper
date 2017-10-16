@@ -48,9 +48,11 @@ namespace STARCameraHelper
             public float squareSizeMeters;
             public int maxInputFrames;
         }
-
+        
         private bool _validIntrinsicCalibrationLoaded = false;
         private IntrinsicCalibration _currentIntrinsicCalibration;
+        private bool _validExtrinsicsLoaded = false;
+        private PnPResult _currentPnPResult;
 
         private ChessParameters _currentChessParameters;
 
@@ -121,6 +123,8 @@ namespace STARCameraHelper
             this.CalibrateIntrinsicsButton.IsEnabled = (!_isCalibratingIntrinsics && numDetectedCorners >= 10);
 
             this.SaveIntrinsicsToFileButton.IsEnabled = _validIntrinsicCalibrationLoaded;
+
+            this.SendCalibrationToHoloLensButton.IsEnabled = _validIntrinsicCalibrationLoaded && _validExtrinsicsLoaded;
         }
 
         private void UpdateChessParameters()
@@ -284,12 +288,16 @@ namespace STARCameraHelper
                     {
                         if (_currentChessParameters.isValid && _validIntrinsicCalibrationLoaded)
                         {
-                            PnPResult pnpresult = _helper.FindExtrinsics(originalBitmap, outputBitmap, _currentChessParameters.chessX, _currentChessParameters.chessY, _currentChessParameters.squareSizeMeters, _currentIntrinsicCalibration);
-                            if (pnpresult.success)
+                            _currentPnPResult = _helper.FindExtrinsics(originalBitmap, outputBitmap, _currentChessParameters.chessX, _currentChessParameters.chessY, _currentChessParameters.squareSizeMeters, _currentIntrinsicCalibration);
+                            if (_currentPnPResult.success)
                             {
+                                _validExtrinsicsLoaded = true;
                                 Debug.WriteLine("got extrinsics:");
-                                Debug.WriteLine("rvec: " + pnpresult.rvec_0 + " " + pnpresult.rvec_1 + " " + pnpresult.rvec_2);
-                                Debug.WriteLine("tvec: " + pnpresult.tvec_0 + " " + pnpresult.tvec_1 + " " + pnpresult.tvec_2);
+                                Debug.WriteLine("rvec: " + _currentPnPResult.rvec_0 + " " + _currentPnPResult.rvec_1 + " " + _currentPnPResult.rvec_2);
+                                Debug.WriteLine("tvec: " + _currentPnPResult.tvec_0 + " " + _currentPnPResult.tvec_1 + " " + _currentPnPResult.tvec_2);
+                            } else
+                            {
+                                _validExtrinsicsLoaded = false;
                             }
                         }
                     }
@@ -371,8 +379,30 @@ namespace STARCameraHelper
                 _currentIntrinsicCalibration = calibration;
                 _validIntrinsicCalibrationLoaded = true;
 
+                _validExtrinsicsLoaded = false;
+
                 CalibrateIntrinsicsButton.Content = originalButtonLabel;
             }
+        }
+
+        private JsonObject IntrinsicsAndExtrinsicsToJson(IntrinsicCalibration calib, PnPResult pnpresult)
+        {
+            JsonObject obj = IntrinsicsToJson(calib);
+
+            JsonArray rvecArray = new JsonArray();
+            rvecArray.Add(pnpresult.rvec_0);
+            rvecArray.Add(pnpresult.rvec_1);
+            rvecArray.Add(pnpresult.rvec_2);
+
+            JsonArray tvecArray = new JsonArray();
+            tvecArray.Add(pnpresult.tvec_0);
+            tvecArray.Add(pnpresult.tvec_1);
+            tvecArray.Add(pnpresult.tvec_2);
+
+            obj["rvec"] = rvecArray;
+            obj["tvec"] = tvecArray;
+
+            return obj;
         }
 
         private JsonObject IntrinsicsToJson(IntrinsicCalibration calib)
@@ -466,10 +496,19 @@ namespace STARCameraHelper
 
                 _currentIntrinsicCalibration = calib;
                 _validIntrinsicCalibrationLoaded = true;
+
+                _validExtrinsicsLoaded = false;
             } else
             {
                 Debug.WriteLine("Loading intrinsics canceled.");
             }
+        }
+
+        private void SendCalibrationToHoloLensButton_Click(object sender, RoutedEventArgs e)
+        {
+            JsonObject objToSend = IntrinsicsAndExtrinsicsToJson(_currentIntrinsicCalibration, _currentPnPResult);
+
+            Debug.WriteLine("TODO: send the object: " + objToSend.ToString());
         }
     }
 }

@@ -26,6 +26,8 @@
 
             <Button x:Name="initWebrtcButton" Content="Init and Start WebRTC" Click="initWebrtcButton_Click"/>
 
+            <Button x:Name="teardownButton" Content="Teardown" Click="teardownButton_Click"/>
+
             <MediaPlayerElement Name="mediaPlayerElement" AreTransportControlsEnabled="False" />
 
             <TextBox x:Name="webrtcLogTextBox" TextWrapping="Wrap" Text="TextBox" />

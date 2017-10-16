@@ -36,13 +36,7 @@ namespace STARCameraHelper
             this.InitializeComponent();
 
             Debug.WriteLine("MainPage()");
-
-            _mediaPlayer = new MediaPlayer();
-            mediaPlayerElement.SetMediaPlayer(_mediaPlayer);
-
-            starWebrtcContext = StarWebrtcContext.CreateTraineeContext();
-            // right after creating the context (before starting the connections), we could edit some parameters such as the signalling server
-
+            
             // comment these out if not needed
             //Messenger.AddListener<string>(SympleLog.LogTrace, OnLog);
             Messenger.AddListener<string>(SympleLog.LogDebug, OnLog);
@@ -53,11 +47,29 @@ namespace STARCameraHelper
             Messenger.AddListener(SympleLog.DestroyedMediaSource, OnDestroyedMediaSource);
 
             initWebrtcButton.IsEnabled = true;
+            teardownButton.IsEnabled = false;
         }
 
         protected override async void OnNavigatedFrom(NavigationEventArgs args)
         {
             Debug.WriteLine("OnNavigatedFrom webrtc page");
+
+            teardown();
+        }
+
+        private void teardown()
+        {
+            if (starWebrtcContext != null)
+            {
+                starWebrtcContext.teardown();
+            }
+
+            mediaPlayerElement.SetMediaPlayer(null);
+            if (_mediaPlayer != null)
+            {
+                _mediaPlayer.Dispose();
+                _mediaPlayer = null;
+            }
         }
 
         private void OnDestroyedMediaSource()
@@ -66,15 +78,18 @@ namespace STARCameraHelper
             Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
             () =>
             {
-            /*
-            MediaSource currentSource = _mediaPlayer.Source as MediaSource;
-            if (currentSource != null)
-            {
-                currentSource.Dispose();
-            }
-            */
-
-                _mediaPlayer.Source = null;
+                /*
+                MediaSource currentSource = _mediaPlayer.Source as MediaSource;
+                if (currentSource != null)
+                {
+                    currentSource.Dispose();
+                }
+                */
+                if (_mediaPlayer != null)
+                {
+                    _mediaPlayer.Source = null;
+                }
+                
             }
             );
 
@@ -91,6 +106,12 @@ namespace STARCameraHelper
                 MediaSource createdSource = MediaSource.CreateFromIMediaSource(source);
 
                 OnLog("createdSource: " + createdSource.ToString() + " " + createdSource.State + " " + createdSource.IsOpen);
+
+                if (_mediaPlayer == null)
+                {
+                    _mediaPlayer = new MediaPlayer();
+                }
+                mediaPlayerElement.SetMediaPlayer(_mediaPlayer);
 
                 _mediaPlayer.Source = createdSource;
                 _mediaPlayer.Play();
@@ -114,9 +135,23 @@ namespace STARCameraHelper
 
         private async void initWebrtcButton_Click(object sender, RoutedEventArgs e)
         {
+            teardownButton.IsEnabled = true;
             initWebrtcButton.IsEnabled = false;
 
+            
+
+            starWebrtcContext = StarWebrtcContext.CreateTraineeContext();
+            // right after creating the context (before starting the connections), we could edit some parameters such as the signalling server
+
             starWebrtcContext.initAndStartWebRTC();
+        }
+
+        private async void teardownButton_Click(object sender, RoutedEventArgs e)
+        {
+            teardownButton.IsEnabled = false;
+            initWebrtcButton.IsEnabled = true;
+
+            teardown();
         }
     }
 }
