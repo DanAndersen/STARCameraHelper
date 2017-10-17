@@ -28,7 +28,7 @@ namespace STARCameraHelper
         private MediaFrameReader _reader = null;
         private FrameRenderer _previewRenderer = null;
         private FrameRenderer _outputRenderer = null;
-
+        
         private int _frameCount = 0;
 
         private const int IMAGE_ROWS = 480;
@@ -386,7 +386,7 @@ namespace STARCameraHelper
             }
         }
 
-        private JsonObject IntrinsicsAndExtrinsicsToJson(IntrinsicCalibration calib, PnPResult pnpresult)
+        private JsonObject IntrinsicsAndExtrinsicsToJson(IntrinsicCalibration calib, PnPResult pnpresult, ChessParameters chessParameters)
         {
             JsonObject obj = IntrinsicsToJson(calib);
 
@@ -402,6 +402,10 @@ namespace STARCameraHelper
 
             obj["rvec"] = rvecArray;
             obj["tvec"] = tvecArray;
+
+            obj["chess_x"] = chessParameters.chessX;
+            obj["chess_y"] = chessParameters.chessY;
+            obj["chess_square_size_meters"] = chessParameters.squareSizeMeters;
 
             return obj;
         }
@@ -507,7 +511,7 @@ namespace STARCameraHelper
 
         private void SendCalibrationToHoloLensButton_Click(object sender, RoutedEventArgs e)
         {
-            JsonObject objToSend = IntrinsicsAndExtrinsicsToJson(_currentIntrinsicCalibration, _currentPnPResult);
+            JsonObject objToSend = IntrinsicsAndExtrinsicsToJson(_currentIntrinsicCalibration, _currentPnPResult, _currentChessParameters);
 
             Debug.WriteLine("TODO: send the object: " + objToSend.ToString());
 
