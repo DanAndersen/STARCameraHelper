@@ -84,7 +84,6 @@ PnPResult OpenCVHelper::FindExtrinsics(SoftwareBitmap^ input, SoftwareBitmap^ ou
 		cameraMatrix.at<double>(1, 1) = intrinsics.fy;
 		cameraMatrix.at<double>(0, 2) = intrinsics.cx;
 		cameraMatrix.at<double>(1, 2) = intrinsics.cy;
-		cameraMatrix.at<double>(1, 2) = intrinsics.cy;
 		cameraMatrix.at<double>(2, 2) = 1.0;
 
 		Mat distCoeffs(cv::Size(1,5), CV_64F, 0.0);
