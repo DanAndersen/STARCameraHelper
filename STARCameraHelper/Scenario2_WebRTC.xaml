@@ -28,6 +28,8 @@
 
             <Button x:Name="teardownButton" Content="Teardown" Click="teardownButton_Click"/>
 
+            <TextBlock x:Name="errorMessageTextBlock"></TextBlock>
+
             <MediaPlayerElement Name="mediaPlayerElement" AreTransportControlsEnabled="False" />
 
             <TextBox x:Name="webrtcLogTextBox" TextWrapping="Wrap" Text="TextBox" />

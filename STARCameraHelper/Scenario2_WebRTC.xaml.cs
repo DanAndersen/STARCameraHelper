@@ -39,7 +39,7 @@ namespace STARCameraHelper
             
             // comment these out if not needed
             //Messenger.AddListener<string>(SympleLog.LogTrace, OnLog);
-            Messenger.AddListener<string>(SympleLog.LogDebug, OnLog);
+            //Messenger.AddListener<string>(SympleLog.LogDebug, OnLog);
             Messenger.AddListener<string>(SympleLog.LogInfo, OnLog);
             Messenger.AddListener<string>(SympleLog.LogError, OnLog);
 
@@ -67,6 +67,7 @@ namespace STARCameraHelper
             mediaPlayerElement.SetMediaPlayer(null);
             if (_mediaPlayer != null)
             {
+                _mediaPlayer.Source = null;
                 _mediaPlayer.Dispose();
                 _mediaPlayer = null;
             }
@@ -143,7 +144,18 @@ namespace STARCameraHelper
             starWebrtcContext = StarWebrtcContext.CreateTraineeContext();
             // right after creating the context (before starting the connections), we could edit some parameters such as the signalling server
 
-            starWebrtcContext.initAndStartWebRTC();
+            try
+            {
+                starWebrtcContext.initAndStartWebRTC();
+            } catch (Exception exception)
+            {
+                Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    errorMessageTextBlock.Text = "Caught exception. Please try tearing down and re-attempting. Message: " + exception.Message;
+                }
+            );
+            }
+            
         }
 
         private async void teardownButton_Click(object sender, RoutedEventArgs e)
