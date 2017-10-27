@@ -68,6 +68,7 @@ PnPResult OpenCVHelper::FindExtrinsics(SoftwareBitmap^ input, SoftwareBitmap^ ou
 	UpdateChessParameters(chessX, chessY, chessSquareSizeMeters);
 
 	Mat src_gray;
+	flip(inputMat, inputMat, 0);
 	cvtColor(inputMat, src_gray, CV_BGRA2GRAY);
 
 	cv::Size patternSize(chessX, chessY);
@@ -108,12 +109,13 @@ PnPResult OpenCVHelper::FindExtrinsics(SoftwareBitmap^ input, SoftwareBitmap^ ou
 		result.tvec_0 = tvec.at<double>(0);
 		result.tvec_1 = tvec.at<double>(1);
 		result.tvec_2 = tvec.at<double>(2);
-		return result;
 	}
 	else {
 		cvtColor(src_gray, outputMat, CV_GRAY2BGRA);
-		return result;
 	}
+	flip(inputMat, inputMat, 0);
+	flip(outputMat, outputMat, 0);
+	return result;
 }
 
 void OpenCVHelper::DrawChessboard(SoftwareBitmap^ input, SoftwareBitmap^ output, int chessX, int chessY, float chessSquareSizeMeters, bool saveDetectedCorners) {
@@ -129,6 +131,7 @@ void OpenCVHelper::DrawChessboard(SoftwareBitmap^ input, SoftwareBitmap^ output,
 	UpdateChessParameters(chessX, chessY, chessSquareSizeMeters);
 
 	Mat src_gray;
+	flip(inputMat, inputMat, 0);
 	cvtColor(inputMat, src_gray, CV_BGRA2GRAY);
 
 	cv::Size patternSize(chessX, chessY);
@@ -150,6 +153,8 @@ void OpenCVHelper::DrawChessboard(SoftwareBitmap^ input, SoftwareBitmap^ output,
 	else {
 		cvtColor(src_gray, outputMat, CV_GRAY2BGRA);
 	}
+	flip(inputMat, inputMat, 0);
+	flip(outputMat, outputMat, 0);
 }
 
 IntrinsicCalibration OpenCVHelper::CalibrateIntrinsics(int maxNumInputFrames)
