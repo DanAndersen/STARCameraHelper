@@ -22,6 +22,9 @@ namespace STARCameraHelper
     /// </summary>
     sealed partial class App : Application
     {
+        private Windows.System.Display.DisplayRequest _displayRequest;
+        private short _requestCount = 0;
+
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -71,6 +74,8 @@ namespace STARCameraHelper
                 // Ensure the current window is active
                 Window.Current.Activate();
             }
+
+            ActivateDisplay();
         }
 
         /// <summary>
@@ -94,7 +99,32 @@ namespace STARCameraHelper
         {
             var deferral = e.SuspendingOperation.GetDeferral();
             //TODO: Save application state and stop any background activity
+
+            ReleaseDisplay();
+
             deferral.Complete();
+        }
+
+        public void ActivateDisplay()
+        {
+            if (_displayRequest == null)
+            {
+                _displayRequest = new Windows.System.Display.DisplayRequest();
+            }
+
+            _displayRequest.RequestActive();
+            _requestCount++;
+        }
+
+        public void ReleaseDisplay()
+        {
+            if (_displayRequest == null)
+            {
+                return;
+            }
+
+            _displayRequest.RequestRelease();
+            _requestCount--;
         }
     }
 }
