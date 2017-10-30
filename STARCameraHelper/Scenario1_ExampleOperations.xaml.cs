@@ -22,6 +22,8 @@ namespace STARCameraHelper
     /// </summary>
     public sealed partial class Scenario1_ExampleOperations : Page
     {
+        private bool pageInitialized = false;
+
         private MainPage rootPage;
 
         private MediaCapture _mediaCapture = null;
@@ -54,6 +56,8 @@ namespace STARCameraHelper
         private IntrinsicCalibration _currentIntrinsicCalibration;
         private bool _validExtrinsicsLoaded = false;
         private PnPResult _currentPnPResult;
+
+        IReadOnlyList<MediaFrameSourceGroup> allGroups;
 
         private ChessParameters _currentChessParameters;
 
@@ -98,8 +102,7 @@ namespace STARCameraHelper
 
             SavingDetectedCorners = true;
 
-            _previewRenderer = new FrameRenderer(PreviewImage);
-            _outputRenderer = new FrameRenderer(OutputImage);
+            
 
             _helper = new OpenCVHelper();
 
@@ -179,6 +182,9 @@ namespace STARCameraHelper
                 MemoryPreference = MediaCaptureMemoryPreference.Cpu
             };
             await _mediaCapture.InitializeAsync(settings);
+
+            _previewRenderer = new FrameRenderer(PreviewImage);
+            _outputRenderer = new FrameRenderer(OutputImage);
         }
 
         /// <summary>
@@ -192,7 +198,22 @@ namespace STARCameraHelper
                 await _reader.StopAsync();
                 _reader.FrameArrived -= ColorFrameReader_FrameArrivedAsync;
                 _reader.Dispose();
+                _reader = null;
+                _mediaCapture.Dispose();
                 _mediaCapture = null;
+            }
+
+            _previewRenderer = null;
+            _outputRenderer = null;
+
+            if (PreviewImage.Source != null)
+            {
+                PreviewImage.Source = null;
+            }
+
+            if (OutputImage.Source != null)
+            {
+                OutputImage.Source = null;
             }
         }
 
@@ -206,26 +227,30 @@ namespace STARCameraHelper
         {
             rootPage = MainPage.Current;
 
-            // setting up the combobox, and default operation
-            OperationComboBox.ItemsSource = Enum.GetValues(typeof(OperationType));
-            OperationComboBox.SelectedIndex = 0;
-            currentOperation = OperationType.CollectCornersForCalibration;
+            if (!pageInitialized)
+            {
+                // setting up the combobox, and default operation
+                OperationComboBox.ItemsSource = Enum.GetValues(typeof(OperationType));
+                OperationComboBox.SelectedIndex = 0;
+                currentOperation = OperationType.CollectCornersForCalibration;
 
-            // Find the sources 
-            var allGroups = await MediaFrameSourceGroup.FindAllAsync();
+                // Find the sources 
+                allGroups = await MediaFrameSourceGroup.FindAllAsync();
+            }
+         
             var sourceGroups = allGroups.Select(g => new
             {
                 Group = g,
                 SourceInfo = g.SourceInfos.FirstOrDefault(i => i.SourceKind == MediaFrameSourceKind.Color)
             }).Where(g => g.SourceInfo != null).ToList();
-
+            
             if (sourceGroups.Count == 0)
             {
                 // No camera sources found
                 return;
             }
             var selectedSource = sourceGroups.FirstOrDefault();
-
+            
             // Initialize MediaCapture
             try
             {
@@ -248,15 +273,20 @@ namespace STARCameraHelper
             _reader = await _mediaCapture.CreateFrameReaderAsync(frameSource, MediaEncodingSubtypes.Bgra8, size);
             _reader.FrameArrived += ColorFrameReader_FrameArrivedAsync;
             await _reader.StartAsync();
-
+            
             _FPSTimer.Start();
             _guiTimer.Start();
+
+            
+
+            pageInitialized = true;
         }
 
         protected override async void OnNavigatedFrom(NavigationEventArgs args)
         {
             _FPSTimer.Stop();
             _guiTimer.Stop();
+            
             await CleanupMediaCaptureAsync();
         }
 
