@@ -13,6 +13,7 @@ namespace STARCameraHelper
 
         List<Scenario> scenarios = new List<Scenario>
         {
+            new Scenario() { Title="Setup", ClassType=typeof(Scenario0_Setup)},
             new Scenario() { Title="Camera Calibration", ClassType=typeof(Scenario1_ExampleOperations)},
             new Scenario() { Title="WebRTC Streaming", ClassType=typeof(Scenario2_WebRTC)}
         };

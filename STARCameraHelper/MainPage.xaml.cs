@@ -33,7 +33,13 @@ namespace STARCameraHelper
             // in order to call methods that are in this class.
             Current = this;
             SampleTitle.Text = FEATURE_NAME;
+
+            this.Settings = new GlobalSettings();
+            this.Settings.OpenCvCameraIndex = 0;
+            this.Settings.WebRtcCameraIndex = 0;
         }
+
+        public GlobalSettings Settings { get; set; }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {

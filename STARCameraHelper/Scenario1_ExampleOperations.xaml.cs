@@ -224,7 +224,18 @@ namespace STARCameraHelper
                 // No camera sources found
                 return;
             }
-            var selectedSource = sourceGroups.FirstOrDefault();
+
+            int requestedOpenCvCameraIndex = rootPage.Settings.OpenCvCameraIndex;
+
+            int usedOpenCvCameraIndex = requestedOpenCvCameraIndex;
+            if (requestedOpenCvCameraIndex >= sourceGroups.Count)
+            {
+                Debug.WriteLine("NOTE: requested OpenCV camera index of " + requestedOpenCvCameraIndex + " is out of range of the number of available source groups (" + sourceGroups.Count + "). Resetting to 0.");
+                usedOpenCvCameraIndex = 0;
+            }
+            Debug.WriteLine("Selecting source group with index " + usedOpenCvCameraIndex);
+            var selectedSource = sourceGroups[usedOpenCvCameraIndex];
+
 
             // Initialize MediaCapture
             try

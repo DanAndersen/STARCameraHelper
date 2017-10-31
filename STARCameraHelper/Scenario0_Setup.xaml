@@ -1,0 +1,29 @@
+﻿<Page
+    x:Class="STARCameraHelper.Scenario0_Setup"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:STARCameraHelper"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required">
+
+    <Page.Resources>
+        <local:StringIntConverter x:Key="StringIntConverter"/>
+    </Page.Resources>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel>
+            
+            <TextBlock TextWrapping="Wrap">To handle multiple cameras plugged into the same device. Enter the numeric index of the camera ("0", "1", "2", etc) for either OpenCV camera calibration or for WebRTC streaming. If there is only one camera attached, these should both be "0". NOTE: The camera index might not be the same, as the ordering is independent between WebRTC and OpenCV.</TextBlock>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock>Camera Index for OpenCV:</TextBlock>
+                <TextBox Name="OpenCvCameraIndexTextBox" Text="{x:Bind Settings.OpenCvCameraIndex, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock>Camera Index for WebRTC:</TextBlock>
+                <TextBox Name="WebRtcCameraIndexTextBox" Text="{x:Bind Settings.WebRtcCameraIndex, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>

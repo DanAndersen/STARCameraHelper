@@ -28,6 +28,8 @@ namespace STARCameraHelper
     /// </summary>
     public sealed partial class Scenario2_WebRTC : Page
     {
+        private MainPage rootPage;
+
         StarWebrtcContext starWebrtcContext;
         MediaPlayer _mediaPlayer;
 
@@ -48,6 +50,11 @@ namespace STARCameraHelper
 
             initWebrtcButton.IsEnabled = true;
             teardownButton.IsEnabled = false;
+        }
+
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            rootPage = MainPage.Current;
         }
 
         protected override async void OnNavigatedFrom(NavigationEventArgs args)
@@ -142,6 +149,8 @@ namespace STARCameraHelper
             
 
             starWebrtcContext = StarWebrtcContext.CreateTraineeContext();
+            starWebrtcContext.RequestedCameraIndexToTransmit = rootPage.Settings.WebRtcCameraIndex;
+            Debug.WriteLine("NOTE: setting RequestedCameraIndexToTransmit to " + rootPage.Settings.WebRtcCameraIndex);
             // right after creating the context (before starting the connections), we could edit some parameters such as the signalling server
 
             try
