@@ -150,7 +150,11 @@ namespace STARCameraHelper
 
             starWebrtcContext = StarWebrtcContext.CreateTraineeContext();
             starWebrtcContext.RequestedCameraIndexToTransmit = rootPage.Settings.WebRtcCameraIndex;
-            Debug.WriteLine("NOTE: setting RequestedCameraIndexToTransmit to " + rootPage.Settings.WebRtcCameraIndex);
+            starWebrtcContext.RequestedVideoWidth = rootPage.Settings.WebRtcDesiredResolutionWidth;
+            starWebrtcContext.RequestedVideoHeight = rootPage.Settings.WebRtcDesiredResolutionHeight;
+            Debug.WriteLine("NOTE: setting RequestedCameraIndexToTransmit to " + starWebrtcContext.RequestedCameraIndexToTransmit);
+            Debug.WriteLine("NOTE: setting RequestedVideoWidth to " + starWebrtcContext.RequestedVideoWidth);
+            Debug.WriteLine("NOTE: setting RequestedVideoHeight to " + starWebrtcContext.RequestedVideoHeight);
             // right after creating the context (before starting the connections), we could edit some parameters such as the signalling server
 
             try
