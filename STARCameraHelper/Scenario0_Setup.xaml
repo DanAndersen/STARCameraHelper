@@ -21,8 +21,20 @@
                 <TextBox Name="OpenCvCameraIndexTextBox" Text="{x:Bind Settings.OpenCvCameraIndex, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
+                <TextBlock>Desired Resolution for OpenCV:</TextBlock>
+                <TextBox Name="OpenCvDesiredResolutionWidth" Text="{x:Bind Settings.OpenCvDesiredResolutionWidth, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
+                <TextBlock> x </TextBlock>
+                <TextBox Name="OpenCvDesiredResolutionHeight" Text="{x:Bind Settings.OpenCvDesiredResolutionHeight, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
                 <TextBlock>Camera Index for WebRTC:</TextBlock>
                 <TextBox Name="WebRtcCameraIndexTextBox" Text="{x:Bind Settings.WebRtcCameraIndex, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock>Desired Resolution for WebRTC:</TextBlock>
+                <TextBox Name="WebRtcDesiredResolutionWidth" Text="{x:Bind Settings.WebRtcDesiredResolutionWidth, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
+                <TextBlock> x</TextBlock>
+                <TextBox Name="WebRtcDesiredResolutionHeight" Text="{x:Bind Settings.WebRtcDesiredResolutionHeight, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
             </StackPanel>
         </StackPanel>
     </Grid>

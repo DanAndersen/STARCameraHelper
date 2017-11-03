@@ -30,10 +30,7 @@ namespace STARCameraHelper
         private FrameRenderer _outputRenderer = null;
         
         private int _frameCount = 0;
-
-        private const int IMAGE_ROWS = 480;
-        private const int IMAGE_COLS = 640;
-
+        
         private OpenCVHelper _helper;
 
         private DispatcherTimer _FPSTimer = null;
@@ -248,6 +245,9 @@ namespace STARCameraHelper
                 await CleanupMediaCaptureAsync();
                 return;
             }
+
+            uint IMAGE_ROWS = (uint)rootPage.Settings.OpenCvDesiredResolutionHeight;
+            uint IMAGE_COLS = (uint)rootPage.Settings.OpenCvDesiredResolutionWidth;
 
             // Create the frame reader
             MediaFrameSource frameSource = _mediaCapture.FrameSources[selectedSource.SourceInfo.Id];

@@ -45,5 +45,69 @@ namespace STARCameraHelper
                 Debug.WriteLine("Set _WebRtcCameraIndex to " + _WebRtcCameraIndex);
             }
         }
+
+        private int _WebRtcDesiredResolutionWidth = 640;
+
+        public int WebRtcDesiredResolutionWidth
+        {
+            get
+            {
+                return _WebRtcDesiredResolutionWidth;
+            }
+
+            set
+            {
+                _WebRtcDesiredResolutionWidth = value;
+                Debug.WriteLine("Set _WebRtcDesiredResolutionWidth to " + _WebRtcDesiredResolutionWidth);
+            }
+        }
+
+        private int _WebRtcDesiredResolutionHeight = 480;
+
+        public int WebRtcDesiredResolutionHeight
+        {
+            get
+            {
+                return _WebRtcDesiredResolutionHeight;
+            }
+
+            set
+            {
+                _WebRtcDesiredResolutionHeight = value;
+                Debug.WriteLine("Set _WebRtcDesiredResolutionHeight to " + _WebRtcDesiredResolutionHeight);
+            }
+        }
+
+        private int _OpenCvDesiredResolutionWidth = 640;
+
+        public int OpenCvDesiredResolutionWidth
+        {
+            get
+            {
+                return _OpenCvDesiredResolutionWidth;
+            }
+
+            set
+            {
+                _OpenCvDesiredResolutionWidth = value;
+                Debug.WriteLine("Set _OpenCvDesiredResolutionWidth to " + _OpenCvDesiredResolutionWidth);
+            }
+        }
+
+        private int _OpenCvDesiredResolutionHeight = 480;
+
+        public int OpenCvDesiredResolutionHeight
+        {
+            get
+            {
+                return _OpenCvDesiredResolutionHeight;
+            }
+
+            set
+            {
+                _OpenCvDesiredResolutionHeight = value;
+                Debug.WriteLine("Set _OpenCvDesiredResolutionHeight to " + _OpenCvDesiredResolutionHeight);
+            }
+        }
     }
 }
