@@ -82,7 +82,8 @@ namespace STARCameraHelper
 
         enum OperationType
         {
-            CollectCornersForCalibration = 0,
+            DoNothing = 0,
+            CollectCornersForCalibration,
             FindCurrentExtrinsics
         }
         OperationType currentOperation;
@@ -206,7 +207,7 @@ namespace STARCameraHelper
             // setting up the combobox, and default operation
             OperationComboBox.ItemsSource = Enum.GetValues(typeof(OperationType));
             OperationComboBox.SelectedIndex = 0;
-            currentOperation = OperationType.CollectCornersForCalibration;
+            currentOperation = OperationType.DoNothing;
 
             // Find the sources 
             var allGroups = await MediaFrameSourceGroup.FindAllAsync();
@@ -332,6 +333,9 @@ namespace STARCameraHelper
             } else if (OperationType.FindCurrentExtrinsics == currentOperation)
             {
                 this.CurrentOperationTextBlock.Text = "Current: Finding current extrinsics given loaded intrinsics";
+            } else if (OperationType.DoNothing == currentOperation)
+            {
+                this.CurrentOperationTextBlock.Text = "Current: Video preview only";
             }
             else
             {
