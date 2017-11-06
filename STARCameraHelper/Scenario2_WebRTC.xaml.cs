@@ -66,17 +66,18 @@ namespace STARCameraHelper
 
         private void teardown()
         {
-            if (starWebrtcContext != null)
-            {
-                starWebrtcContext.teardown();
-            }
-
             mediaPlayerElement.SetMediaPlayer(null);
             if (_mediaPlayer != null)
             {
                 _mediaPlayer.Source = null;
                 _mediaPlayer.Dispose();
                 _mediaPlayer = null;
+            }
+
+            if (starWebrtcContext != null)
+            {
+                starWebrtcContext.teardown();
+                starWebrtcContext = null;
             }
         }
 
@@ -93,10 +94,12 @@ namespace STARCameraHelper
                     currentSource.Dispose();
                 }
                 */
+                /*
                 if (_mediaPlayer != null)
                 {
                     _mediaPlayer.Source = null;
                 }
+                */
                 
             }
             );
@@ -106,15 +109,16 @@ namespace STARCameraHelper
         private void OnCreatedMediaSource(IMediaSource source)
         {
             Messenger.Broadcast(SympleLog.LogDebug, "OnCreatedMediaSource");
+
+            OnLog("about to create from imediasource");
+
+            MediaSource createdSource = MediaSource.CreateFromIMediaSource(source);
+
+            OnLog("createdSource: " + createdSource.ToString() + " " + createdSource.State + " " + createdSource.IsOpen);
+            
             Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
             () =>
             {
-                OnLog("about to create from imediasource");
-
-                MediaSource createdSource = MediaSource.CreateFromIMediaSource(source);
-
-                OnLog("createdSource: " + createdSource.ToString() + " " + createdSource.State + " " + createdSource.IsOpen);
-
                 if (_mediaPlayer == null)
                 {
                     _mediaPlayer = new MediaPlayer();
