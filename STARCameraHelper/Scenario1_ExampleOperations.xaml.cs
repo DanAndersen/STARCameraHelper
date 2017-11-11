@@ -91,9 +91,7 @@ namespace STARCameraHelper
         public Scenario1_ExampleOperations()
         {
             this.InitializeComponent();
-
-            UpdateChessParameters();
-
+            
             SavingDetectedCorners = true;
 
             _previewRenderer = new FrameRenderer(PreviewImage);
@@ -130,29 +128,10 @@ namespace STARCameraHelper
         {
             _currentChessParameters.isValid = false;
 
-            if (!Int32.TryParse(ChessXTextBlock.Text, out _currentChessParameters.chessX))
-            {
-                Debug.WriteLine("Invalid value for ChessXTextBlock: " + ChessXTextBlock.Text);
-                return;
-            }
-
-            if (!Int32.TryParse(ChessYTextBlock.Text, out _currentChessParameters.chessY))
-            {
-                Debug.WriteLine("Invalid value for ChessYTextBlock: " + ChessYTextBlock.Text);
-                return;
-            }
-
-            if (!float.TryParse(ChessSizeTextBlock.Text, out _currentChessParameters.squareSizeMeters))
-            {
-                Debug.WriteLine("Invalid value for ChessSizeTextBlock: " + ChessSizeTextBlock.Text);
-                return;
-            }
-
-            if (!Int32.TryParse(MaxInputFramesTextBlock.Text, out _currentChessParameters.maxInputFrames))
-            {
-                Debug.WriteLine("Invalid value for MaxInputFramesTextBlock: " + MaxInputFramesTextBlock.Text);
-                return;
-            }
+            _currentChessParameters.chessX = rootPage.Settings.ChessX;
+            _currentChessParameters.chessY = rootPage.Settings.ChessY;
+            _currentChessParameters.squareSizeMeters = rootPage.Settings.ChessSquareSize;
+            _currentChessParameters.maxInputFrames = rootPage.Settings.MaxInputFramesCalibration;
             
             _currentChessParameters.isValid = true;
         }
@@ -203,6 +182,8 @@ namespace STARCameraHelper
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             rootPage = MainPage.Current;
+
+            UpdateChessParameters();
 
             // setting up the combobox, and default operation
             OperationComboBox.ItemsSource = Enum.GetValues(typeof(OperationType));
@@ -342,12 +323,7 @@ namespace STARCameraHelper
                 this.CurrentOperationTextBlock.Text = string.Empty;
             }
         }
-
-        private void ChessParameters_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            UpdateChessParameters();
-        }
-
+        
         private void ClearCollectedCornersButton_Click(object sender, RoutedEventArgs e)
         {
             _helper.ClearDetectedCorners();
@@ -529,15 +505,11 @@ namespace STARCameraHelper
             JsonObject objToSend = IntrinsicsAndExtrinsicsToJson(_currentIntrinsicCalibration, _currentPnPResult, _currentChessParameters);
 
             Debug.WriteLine("TODO: send the object: " + objToSend.ToString());
+            
+            string holoAddress = rootPage.Settings.HoloLensAddress;
+            int holoPort = rootPage.Settings.HoloLensPort;
 
-            int holoPort;
-
-            string holoAddress = HoloLensAddressTextBlock.Text;
-
-            if (int.TryParse(HoloLensPortTextBlock.Text, out holoPort))
-            {
-                SendStringToTcpServer(holoAddress, holoPort, objToSend.ToString());
-            }
+            SendStringToTcpServer(holoAddress, holoPort, objToSend.ToString());
         }
 
         private async void SendStringToTcpServer(string address, int port, string msg)

@@ -10,6 +10,7 @@
 
     <Page.Resources>
         <local:StringIntConverter x:Key="StringIntConverter"/>
+        <local:StringFloatConverter x:Key="StringFloatConverter"/>
     </Page.Resources>
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -36,6 +37,33 @@
                 <TextBlock> x</TextBlock>
                 <TextBox Name="WebRtcDesiredResolutionHeight" Text="{x:Bind Settings.WebRtcDesiredResolutionHeight, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
             </StackPanel>
+
+            <TextBlock>Chessboard Dimensions:</TextBlock>
+            <StackPanel Orientation="Horizontal">
+                <StackPanel>
+                    <TextBlock>X:</TextBlock>
+                    <TextBox Name="ChessXTextBlock" Text="{x:Bind Settings.ChessX, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock>Y:</TextBlock>
+                    <TextBox Name="ChessYTextBlock" Text="{x:Bind Settings.ChessY, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock>Square Size (meters):</TextBlock>
+                    <TextBox Name="ChessSizeTextBlock" Text="{x:Bind Settings.ChessSquareSize, Mode=TwoWay, Converter={StaticResource StringFloatConverter}}"/>
+                </StackPanel>
+            </StackPanel>
+
+
+            <TextBlock>Max input frames to use for calibration:</TextBlock>
+            <TextBox Name="MaxInputFramesTextBlock" Text="{x:Bind Settings.MaxInputFramesCalibration, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
+
+            <TextBlock>HoloLens IP Address:</TextBlock>
+            <TextBox Name="HoloLensAddressTextBlock" Text="{x:Bind Settings.HoloLensAddress, Mode=TwoWay}"/>
+
+            <TextBlock>HoloLens Port:</TextBlock>
+            <TextBox Name="HoloLensPortTextBlock" Text="{x:Bind Settings.HoloLensPort, Mode=TwoWay, Converter={StaticResource StringIntConverter}}"/>
+            
         </StackPanel>
     </Grid>
 </Page>

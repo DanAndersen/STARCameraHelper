@@ -26,22 +26,6 @@
 
             <ComboBox Name="OperationComboBox" SelectionChanged="OperationComboBox_SelectionChanged"/>
 
-            <TextBlock>Chessboard Dimensions:</TextBlock>
-            <StackPanel Orientation="Horizontal">
-                <StackPanel>
-                    <TextBlock>X:</TextBlock>
-                    <TextBox Name="ChessXTextBlock" Text="5" TextChanged="ChessParameters_TextChanged"/>
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock>Y:</TextBlock>
-                    <TextBox Name="ChessYTextBlock" Text="7" TextChanged="ChessParameters_TextChanged"/>
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock>Square Size (meters):</TextBlock>
-                    <TextBox Name="ChessSizeTextBlock" Text="0.03" TextChanged="ChessParameters_TextChanged"/>
-                </StackPanel>
-            </StackPanel>
-
             <Button Name="ResumeCollectingCornersButton" Click="ResumeCollectingCornersButton_Click">Collect Corners</Button>
 
             <Button Name="PauseCollectingCornersButton" Click="PauseCollectingCornersButton_Click">Pause Collecting Corners</Button>
@@ -50,21 +34,12 @@
 
             <TextBlock Name="CornerStatusTextBlock"></TextBlock>
 
-            <TextBlock>Max input frames to use for calibration:</TextBlock>
-            <TextBox Name="MaxInputFramesTextBlock" Text="30" TextChanged="ChessParameters_TextChanged"/>
-
             <Button Name="CalibrateIntrinsicsButton" Click="CalibrateIntrinsicsButton_Click">Calibrate Intrinsics</Button>
 
             <StackPanel Orientation="Horizontal">
                 <Button Name="SaveIntrinsicsToFileButton" Click="SaveIntrinsicsToFileButton_Click">Save Intrinsics to File</Button>
                 <Button Name="LoadIntrinsicsFromFileButton" Click="LoadIntrinsicsFromFileButton_Click">Load Intrinsics from File</Button>
             </StackPanel>
-
-            <TextBlock>HoloLens IP Address:</TextBlock>
-            <TextBox Name="HoloLensAddressTextBlock" Text="127.0.0.1"/>
-
-            <TextBlock>HoloLens Port:</TextBlock>
-            <TextBox Name="HoloLensPortTextBlock" Text="4434"/>
 
             <Button Name="SendCalibrationToHoloLensButton" Click="SendCalibrationToHoloLensButton_Click">Send Calibration to HoloLens</Button>
 

@@ -115,6 +115,7 @@
     <Compile Include="Scenario2_WebRTC.xaml.cs">
       <DependentUpon>Scenario2_WebRTC.xaml</DependentUpon>
     </Compile>
+    <Compile Include="StringFloatConverter.cs" />
     <Compile Include="StringIntConverter.cs" />
   </ItemGroup>
   <ItemGroup>

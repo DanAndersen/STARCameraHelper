@@ -9,105 +9,105 @@ namespace STARCameraHelper
 {
     public class GlobalSettings
     {
+        Windows.Storage.ApplicationDataContainer _localSettings;
+
         public GlobalSettings()
         {
+            _localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
 
+            Windows.Storage.StorageFolder localFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+
+            Debug.WriteLine("local folder for settings: " + localFolder.Path);
         }
         
-        private int _OpenCvCameraIndex = 0;
+
+        private object getValue(string key, object defaultValue)
+        {
+            object retval;
+            if (!_localSettings.Values.TryGetValue(key, out retval))
+            {
+                retval = defaultValue;
+                _localSettings.Values[key] = defaultValue;
+            }
+            return retval;
+        }
+
+        private void setValue(string key, object newValue)
+        {
+            _localSettings.Values[key] = newValue;
+        }
 
         public int OpenCvCameraIndex
         {
-            get
-            {
-                return _OpenCvCameraIndex;
-            }
-
-            set
-            {
-                _OpenCvCameraIndex = value;
-                Debug.WriteLine("Set _OpenCvCameraIndex to " + _OpenCvCameraIndex);
-            }
+            get { return (int)getValue("OpenCvCameraIndex", 0); }
+            set { setValue("OpenCvCameraIndex", value); }
         }
-
-        private int _WebRtcCameraIndex = 0;
 
         public int WebRtcCameraIndex
         {
-            get
-            {
-                return _WebRtcCameraIndex;
-            }
-
-            set
-            {
-                _WebRtcCameraIndex = value;
-                Debug.WriteLine("Set _WebRtcCameraIndex to " + _WebRtcCameraIndex);
-            }
+            get { return (int)getValue("WebRtcCameraIndex", 0); }
+            set { setValue("WebRtcCameraIndex", value); }
         }
-
-        private int _WebRtcDesiredResolutionWidth = 640;
 
         public int WebRtcDesiredResolutionWidth
         {
-            get
-            {
-                return _WebRtcDesiredResolutionWidth;
-            }
-
-            set
-            {
-                _WebRtcDesiredResolutionWidth = value;
-                Debug.WriteLine("Set _WebRtcDesiredResolutionWidth to " + _WebRtcDesiredResolutionWidth);
-            }
+            get { return (int)getValue("WebRtcDesiredResolutionWidth", 1920); }
+            set { setValue("WebRtcDesiredResolutionWidth", value); }
         }
-
-        private int _WebRtcDesiredResolutionHeight = 480;
 
         public int WebRtcDesiredResolutionHeight
         {
-            get
-            {
-                return _WebRtcDesiredResolutionHeight;
-            }
-
-            set
-            {
-                _WebRtcDesiredResolutionHeight = value;
-                Debug.WriteLine("Set _WebRtcDesiredResolutionHeight to " + _WebRtcDesiredResolutionHeight);
-            }
+            get { return (int)getValue("WebRtcDesiredResolutionHeight", 1080); }
+            set { setValue("WebRtcDesiredResolutionHeight", value); }
         }
-
-        private int _OpenCvDesiredResolutionWidth = 640;
 
         public int OpenCvDesiredResolutionWidth
         {
-            get
-            {
-                return _OpenCvDesiredResolutionWidth;
-            }
-
-            set
-            {
-                _OpenCvDesiredResolutionWidth = value;
-                Debug.WriteLine("Set _OpenCvDesiredResolutionWidth to " + _OpenCvDesiredResolutionWidth);
-            }
+            get { return (int)getValue("OpenCvDesiredResolutionWidth", 1920); }
+            set { setValue("OpenCvDesiredResolutionWidth", value); }
         }
-
-        private int _OpenCvDesiredResolutionHeight = 480;
 
         public int OpenCvDesiredResolutionHeight
         {
-            get
-            {
-                return _OpenCvDesiredResolutionHeight;
-            }
-
-            set
-            {
-                _OpenCvDesiredResolutionHeight = value;
-                Debug.WriteLine("Set _OpenCvDesiredResolutionHeight to " + _OpenCvDesiredResolutionHeight);
-            }
+            get { return (int)getValue("OpenCvDesiredResolutionHeight", 1080); }
+            set { setValue("OpenCvDesiredResolutionHeight", value); }
         }
+
+        public int ChessX
+        {
+            get { return (int)getValue("ChessX", 5); }
+            set { setValue("ChessX", value); }
+        }
+
+        public int ChessY
+        {
+            get { return (int)getValue("ChessY", 7); }
+            set { setValue("ChessY", value); }
+        }
+
+        public float ChessSquareSize
+        {
+            get { return (float)getValue("ChessSquareSize", 0.03f); }
+            set { setValue("ChessSquareSize", value); }
+        }
+
+        public int MaxInputFramesCalibration
+        {
+            get { return (int)getValue("MaxInputFramesCalibration", 30); }
+            set { setValue("MaxInputFramesCalibration", value); }
+        }
+
+        public string HoloLensAddress
+        {
+            get { return (string)getValue("HoloLensAddress", "127.0.0.1"); }
+            set { setValue("HoloLensAddress", value); }
+        }
+
+        public int HoloLensPort
+        {
+            get { return (int)getValue("HoloLensPort", 4434); }
+            set { setValue("HoloLensPort", value); }
+        }
+
     }
 }
