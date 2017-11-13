@@ -87,6 +87,11 @@ namespace STARCameraHelper
             Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
             () =>
             {
+                teardownButton.IsEnabled = false;
+                initWebrtcButton.IsEnabled = true;
+
+                teardown();
+
                 /*
                 MediaSource currentSource = _mediaPlayer.Source as MediaSource;
                 if (currentSource != null)
@@ -144,7 +149,7 @@ namespace STARCameraHelper
             }
             );
         }
-
+        
         private async void initWebrtcButton_Click(object sender, RoutedEventArgs e)
         {
             teardownButton.IsEnabled = true;
