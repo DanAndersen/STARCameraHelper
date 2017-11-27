@@ -236,7 +236,12 @@ int OpenCVHelper::GetNumDetectedCorners()
 
 IVector<float>^ OpenCVBridge::OpenCVHelper::GetCurrentPointXYs()
 {
-	return ref new Vector<float>(std::move(_currentPointXYs));
+	std::vector<float> copyPoints;
+	for (float coord : _currentPointXYs) {
+		copyPoints.push_back(coord);
+	}
+
+	return ref new Vector<float>(std::move(copyPoints));
 }
 
 bool OpenCVHelper::TryConvert(SoftwareBitmap^ from, Mat& convertedMat)
