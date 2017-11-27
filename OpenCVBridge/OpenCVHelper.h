@@ -4,6 +4,8 @@
 #include <opencv2\video.hpp>
 #include <opencv2\calib3d\calib3d.hpp>
 
+using namespace Windows::Foundation::Collections;
+
 namespace OpenCVBridge 
 {
 
@@ -62,6 +64,8 @@ namespace OpenCVBridge
 
 		int GetNumDetectedCorners();
 
+		IVector<float>^ GetCurrentPointXYs();
+
 		IntrinsicCalibration CalibrateIntrinsics(int maxNumInputFrames);
 
 		PnPResult FindExtrinsics(Windows::Graphics::Imaging::SoftwareBitmap^ input,
@@ -86,5 +90,7 @@ namespace OpenCVBridge
 		bool TryConvert(Windows::Graphics::Imaging::SoftwareBitmap^ from, cv::Mat& convertedMat);
 
 		void UpdateChessParameters(int newChessX, int newChessY, float newChessSquareSizeMeters);
+
+		std::vector<float> _currentPointXYs;
 	};
 }

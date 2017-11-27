@@ -3,6 +3,11 @@
 #include "MemoryBuffer.h"
 #include <iostream>
 #include <numeric>
+
+#include <collection.h>
+#include <vector>
+#include <utility>
+
 using namespace Microsoft::WRL;
 
 using namespace OpenCVBridge;
@@ -10,6 +15,7 @@ using namespace Platform;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::Storage::Streams;
 using namespace Windows::Foundation;
+using namespace Platform::Collections;
 
 using namespace cv;
 
@@ -109,9 +115,19 @@ PnPResult OpenCVHelper::FindExtrinsics(SoftwareBitmap^ input, SoftwareBitmap^ ou
 		result.tvec_0 = tvec.at<double>(0);
 		result.tvec_1 = tvec.at<double>(1);
 		result.tvec_2 = tvec.at<double>(2);
+
+		_currentPointXYs.clear();
+		for (int i = 0; i < pointBuf.size(); i++) {
+
+			_currentPointXYs.push_back(pointBuf[i].x);
+			_currentPointXYs.push_back(pointBuf[i].y);
+
+		}
 	}
 	else {
 		cvtColor(src_gray, outputMat, CV_GRAY2BGRA);
+
+		_currentPointXYs.clear();
 	}
 	flip(inputMat, inputMat, 0);
 	flip(outputMat, outputMat, 0);
@@ -216,6 +232,11 @@ IntrinsicCalibration OpenCVHelper::CalibrateIntrinsics(int maxNumInputFrames)
 int OpenCVHelper::GetNumDetectedCorners()
 {
 	return detectedCorners.size();
+}
+
+IVector<float>^ OpenCVBridge::OpenCVHelper::GetCurrentPointXYs()
+{
+	return ref new Vector<float>(std::move(_currentPointXYs));
 }
 
 bool OpenCVHelper::TryConvert(SoftwareBitmap^ from, Mat& convertedMat)

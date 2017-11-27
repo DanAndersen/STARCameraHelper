@@ -289,7 +289,9 @@ namespace STARCameraHelper
                                 Debug.WriteLine("got extrinsics:");
                                 Debug.WriteLine("rvec: " + _currentPnPResult.rvec_0 + " " + _currentPnPResult.rvec_1 + " " + _currentPnPResult.rvec_2);
                                 Debug.WriteLine("tvec: " + _currentPnPResult.tvec_0 + " " + _currentPnPResult.tvec_1 + " " + _currentPnPResult.tvec_2);
-                            } else
+                                
+                            }
+                            else
                             {
                                 _validExtrinsicsLoaded = false;
                             }
@@ -398,6 +400,29 @@ namespace STARCameraHelper
             obj["chess_y"] = chessParameters.chessY;
             obj["chess_square_size_meters"] = chessParameters.squareSizeMeters;
 
+
+
+            JsonArray pointsArray = new JsonArray();
+
+            // get the points here from the helper too
+
+            var pointXYs = _helper.GetCurrentPointXYs();
+            int num_points = _currentChessParameters.chessX * _currentChessParameters.chessY;
+            for (int i = 0; i < num_points; i++)
+            {
+                JsonArray ptArray = new JsonArray();
+
+                float x = pointXYs[2 * i + 0];
+                float y = pointXYs[2 * i + 1];
+
+                ptArray.Add(x);
+                ptArray.Add(y);
+
+                pointsArray.Add(ptArray);
+            }
+
+            obj["points"] = pointsArray;
+            
             return obj;
         }
 
