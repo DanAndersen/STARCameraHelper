@@ -23,15 +23,35 @@ using System.Diagnostics;
 
 namespace STARCameraHelper
 {
+
+    public static class WebRtcContextHolder
+    {
+        private static StarWebrtcContext starWebRtcContext;
+
+        public static StarWebrtcContext GetContext()
+        {
+            return starWebRtcContext;
+        }
+
+        public static void SetContext(StarWebrtcContext context)
+        {
+            starWebRtcContext = context;
+        }
+    }
+
+
+
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class Scenario2_WebRTC : Page
     {
         private MainPage rootPage;
-
-        StarWebrtcContext starWebrtcContext;
+        
         MediaPlayer _mediaPlayer;
+
+
 
         public Scenario2_WebRTC()
         {
@@ -39,6 +59,13 @@ namespace STARCameraHelper
 
             Debug.WriteLine("MainPage()");
             
+            
+        }
+
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            rootPage = MainPage.Current;
+
             // comment these out if not needed
             //Messenger.AddListener<string>(SympleLog.LogTrace, OnLog);
             //Messenger.AddListener<string>(SympleLog.LogDebug, OnLog);
@@ -52,32 +79,40 @@ namespace STARCameraHelper
             teardownButton.IsEnabled = false;
         }
 
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
-        {
-            rootPage = MainPage.Current;
-        }
-
         protected override async void OnNavigatedFrom(NavigationEventArgs args)
         {
             Debug.WriteLine("OnNavigatedFrom webrtc page");
+
+            //Messenger.RemoveListener<string>(SympleLog.LogTrace, OnLog);
+            //Messenger.RemoveListener<string>(SympleLog.LogDebug, OnLog);
+            Messenger.RemoveListener<string>(SympleLog.LogInfo, OnLog);
+            Messenger.RemoveListener<string>(SympleLog.LogError, OnLog);
+
+            Messenger.RemoveListener<IMediaSource>(SympleLog.CreatedMediaSource, OnCreatedMediaSource);
+            Messenger.RemoveListener(SympleLog.DestroyedMediaSource, OnDestroyedMediaSource);
 
             teardown();
         }
 
         private void teardown()
         {
-            mediaPlayerElement.SetMediaPlayer(null);
+            //mediaPlayerElement.Source = null;
+            //mediaPlayerElement.SetMediaPlayer(null);
+
+            mediaPlayerElementContainer.Children.Clear();
+
             if (_mediaPlayer != null)
             {
-                _mediaPlayer.Source = null;
-                _mediaPlayer.Dispose();
+                _mediaPlayer.Pause();
+                //_mediaPlayer.Source = null;
+                //_mediaPlayer.Dispose();
                 _mediaPlayer = null;
             }
 
-            if (starWebrtcContext != null)
+            if (WebRtcContextHolder.GetContext() != null)
             {
-                starWebrtcContext.teardown();
-                starWebrtcContext = null;
+                WebRtcContextHolder.GetContext().teardown();
+                WebRtcContextHolder.SetContext(null);
             }
         }
 
@@ -124,10 +159,14 @@ namespace STARCameraHelper
             Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
             () =>
             {
-                if (_mediaPlayer == null)
-                {
-                    _mediaPlayer = new MediaPlayer();
-                }
+                mediaPlayerElementContainer.Children.Clear();
+
+                MediaPlayerElement mediaPlayerElement = new MediaPlayerElement();
+                mediaPlayerElement.AreTransportControlsEnabled = false;
+
+                mediaPlayerElementContainer.Children.Add(mediaPlayerElement);
+
+                _mediaPlayer = new MediaPlayer();
                 mediaPlayerElement.SetMediaPlayer(_mediaPlayer);
 
                 _mediaPlayer.Source = createdSource;
@@ -152,23 +191,28 @@ namespace STARCameraHelper
         
         private async void initWebrtcButton_Click(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine("initWebrtcButton_Click");
+
             teardownButton.IsEnabled = true;
             initWebrtcButton.IsEnabled = false;
 
-            
+            StarWebrtcContext context = StarWebrtcContext.CreateTraineeContext();
 
-            starWebrtcContext = StarWebrtcContext.CreateTraineeContext();
-            starWebrtcContext.RequestedCameraIndexToTransmit = rootPage.Settings.WebRtcCameraIndex;
-            starWebrtcContext.RequestedVideoWidth = rootPage.Settings.WebRtcDesiredResolutionWidth;
-            starWebrtcContext.RequestedVideoHeight = rootPage.Settings.WebRtcDesiredResolutionHeight;
-            Debug.WriteLine("NOTE: setting RequestedCameraIndexToTransmit to " + starWebrtcContext.RequestedCameraIndexToTransmit);
-            Debug.WriteLine("NOTE: setting RequestedVideoWidth to " + starWebrtcContext.RequestedVideoWidth);
-            Debug.WriteLine("NOTE: setting RequestedVideoHeight to " + starWebrtcContext.RequestedVideoHeight);
+            context = StarWebrtcContext.CreateTraineeContext();
+            context.RequestedCameraIndexToTransmit = rootPage.Settings.WebRtcCameraIndex;
+            context.RequestedVideoWidth = rootPage.Settings.WebRtcDesiredResolutionWidth;
+            context.RequestedVideoHeight = rootPage.Settings.WebRtcDesiredResolutionHeight;
+            Debug.WriteLine("NOTE: setting RequestedCameraIndexToTransmit to " + context.RequestedCameraIndexToTransmit);
+            Debug.WriteLine("NOTE: setting RequestedVideoWidth to " + context.RequestedVideoWidth);
+            Debug.WriteLine("NOTE: setting RequestedVideoHeight to " + context.RequestedVideoHeight);
             // right after creating the context (before starting the connections), we could edit some parameters such as the signalling server
 
+            WebRtcContextHolder.SetContext(context);
+            
             try
             {
-                starWebrtcContext.initAndStartWebRTC();
+                Debug.WriteLine("just before initAndStartWebRTC");
+                context.initAndStartWebRTC();
             } catch (Exception exception)
             {
                 Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>

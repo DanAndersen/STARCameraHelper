@@ -30,7 +30,11 @@
 
             <TextBlock x:Name="errorMessageTextBlock"></TextBlock>
 
-            <MediaPlayerElement Name="mediaPlayerElement" AreTransportControlsEnabled="False" />
+            <StackPanel x:Name="mediaPlayerElementContainer">
+                <!-- MediaPlayerElement will be generated here at runtime -->
+            </StackPanel>
+            
+            <!-- <MediaPlayerElement Name="mediaPlayerElement" AreTransportControlsEnabled="False" /> -->
 
             <TextBox x:Name="webrtcLogTextBox" TextWrapping="Wrap" Text="TextBox" />
 

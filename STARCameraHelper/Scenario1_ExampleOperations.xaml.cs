@@ -250,7 +250,14 @@ namespace STARCameraHelper
         {
             _FPSTimer.Stop();
             _guiTimer.Stop();
-            await CleanupMediaCaptureAsync();
+            try
+            {
+                await CleanupMediaCaptureAsync();
+            } catch (Exception e)
+            {
+                Debug.WriteLine("Exception when navigating from calibration page: " + e.StackTrace);
+            }
+            
         }
 
         /// <summary>
